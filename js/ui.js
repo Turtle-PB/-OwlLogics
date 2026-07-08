@@ -4985,10 +4985,14 @@ const AutoSeqUI = (function () {
     h += '</div>';
 
     // Trailer table
-    h += '<table class="data-table"><thead><tr><th>Unit</th><th>Type</th><th>Driver</th><th>Location</th><th>GPS</th><th>Speed</th><th>Destination</th><th>ETA</th><th>Cargo</th><th>Weight</th><th>Status</th></tr></thead><tbody>';
+    h += '<table class="data-table"><thead><tr><th>Unit</th><th>Type</th><th>Driver</th><th>Location</th><th>GPS</th><th>Speed</th><th>Destination</th><th>ETA</th><th>Cargo</th><th>Weight</th><th>Status</th><th>Maps</th></tr></thead><tbody>';
     trailers.forEach(function(t) {
       var statusColor = t.status === 'in_transit' ? 'var(--blue)' : t.status === 'arrived' ? 'var(--emerald)' : t.status === 'loading' ? 'var(--yellow)' : 'var(--text-muted)';
       var weightPct = Math.round((t.weight / t.maxWeight) * 100);
+      var appleMapsUrl = 'maps://?q=' + encodeURIComponent(t.currentLocation) + '&ll=' + t.lat + ',' + t.lng + '&z=14';
+      var googleMapsUrl = 'https://maps.google.com/?q=' + t.lat + ',' + t.lng + '&z=14';
+      var wazeUrl = 'https://waze.com/ul?ll=' + t.lat + '%2C' + t.lng + '&z=14';
+      var directionsUrl = 'maps://?daddr=' + encodeURIComponent(t.destination) + '&saddr=' + t.lat + ',' + t.lng;
       h += '<tr>';
       h += '<td><strong>' + t.unitNumber + '</strong></td>';
       h += '<td style="font-size:10px">' + t.type + '</td>';
@@ -5001,6 +5005,12 @@ const AutoSeqUI = (function () {
       h += '<td style="font-size:10px">' + t.cargo + '</td>';
       h += '<td>' + t.weight.toLocaleString() + ' / ' + t.maxWeight.toLocaleString() + ' lbs<br><span style="font-size:8px;color:' + (weightPct > 90 ? 'var(--red)' : 'var(--emerald)') + '">' + weightPct + '%</span></td>';
       h += '<td style="color:' + statusColor + ';font-weight:600">' + t.status.replace(/_/g,' ') + '</td>';
+      h += '<td style="white-space:nowrap">';
+      h += '<a href="' + appleMapsUrl + '" style="font-size:9px;text-decoration:none;color:#3498db" title="Open in Apple Maps (iPad)">🍎 Maps</a> ';
+      h += '<a href="' + googleMapsUrl + '" target="_blank" style="font-size:9px;text-decoration:none;color:#ea4335" title="Open in Google Maps">📍 GMaps</a> ';
+      h += '<a href="' + wazeUrl + '" target="_blank" style="font-size:9px;text-decoration:none;color:#33cc33" title="Open in Waze">🚗 Waze</a><br>';
+      h += '<a href="' + directionsUrl + '" style="font-size:9px;text-decoration:none;color:var(--purple-light)" title="Directions to destination">🧭 Directions</a>';
+      h += '</td>';
       h += '</tr>';
     });
     h += '</tbody></table>';
@@ -5014,7 +5024,12 @@ const AutoSeqUI = (function () {
     h += '</tbody></table>';
 
     h += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
-    h += '<strong>iPad GPS:</strong> OwlLogics uses the browser Geolocation API (navigator.geolocation.watchPosition) — works on iPad, iPhone, Android tablets, and any device with GPS. Enable "Share Location" when prompted. High-accuracy mode uses GPS + WiFi + cellular for best positioning.<br>';
+    h += '<strong>iPad GPS:</strong> Tap any Maps link to open the trailer location in the native app on your iPad or phone:<br>';
+    h += '&nbsp;&nbsp;🍎 <strong>Apple Maps</strong> — uses <code>maps://</code> URL scheme, opens directly on iPad/iPhone (no app install needed — built in)<br>';
+    h += '&nbsp;&nbsp;📍 <strong>Google Maps</strong> — opens in browser or Google Maps app if installed<br>';
+    h += '&nbsp;&nbsp;🚗 <strong>Waze</strong> — opens in Waze app if installed (real-time traffic, truck routes)<br>';
+    h += '&nbsp;&nbsp;🧭 <strong>Directions</strong> — opens Apple Maps with turn-by-turn route from trailer to destination<br><br>';
+    h += '<strong>How it works:</strong> OwlLogics stores each trailer GPS coordinates (lat/lng). The Maps column generates native app URLs that open the location in whatever mapping app is on the device. On iPad, Apple Maps opens instantly. On Android, Google Maps or Waze opens. No special tracking app or SDK needed — just the standard apps already on the device.<br><br>';
     h += '<strong>Geofencing:</strong> Trailers are automatically checked against geofences. Entering an OEM plant geofence auto-sets status to "arrived". Port geofences set "at_port". Warehouse geofences set "at_dock".';
     h += '</div>';
 
