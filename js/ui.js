@@ -4261,6 +4261,7 @@ const AutoSeqUI = (function () {
     html += '<div class="doc-tab' + (docTab === 'api' ? ' active' : '') + '" onclick="AutoSeqUI.setDocTab(\'api\')">📡 API Reference</div>';
     html += '<div class="doc-tab' + (docTab === 'mobile' ? ' active' : '') + '" onclick="AutoSeqUI.setDocTab(\'mobile\')">📱 Mobile Setup</div>';
     html += '<div class="doc-tab' + (docTab === 'platforms' ? ' active' : '') + '" onclick="AutoSeqUI.setDocTab(\'platforms\')">🎮 Xbox & Steam</div>';
+    html += '<div class="doc-tab' + (docTab === 'mainframe' ? ' active' : '') + '" onclick="AutoSeqUI.setDocTab(\'mainframe\')">🖥️ Mainframe & SAP</div>';
     html += '</div>';
 
     html += '<div class="doc-section" id="doc-content">' + renderDocContent() + '</div>';
@@ -4307,6 +4308,7 @@ const AutoSeqUI = (function () {
     if (docTab === 'api') return renderDocAPI();
     if (docTab === 'mobile') return renderDocMobile();
     if (docTab === 'platforms') return renderDocPlatforms();
+    if (docTab === 'mainframe') return renderDocMainframe();
     return '';
   }
 
@@ -5247,6 +5249,95 @@ const AutoSeqUI = (function () {
     text += '\nTOTAL: ' + bol.totalPieces + ' pieces — ' + bol.totalWeight + ' lbs\n\nSpecial: ' + bol.specialInstructions + '\n\nShipper: __________  Driver: __________  Consignee: __________';
     downloadFile(text, bol.bolNumber + '.txt', 'text/plain');
     AutoSeq.alert('success', 'BOL Downloaded', bol.bolNumber);
+  }
+
+  function renderDocMainframe() {
+    var h = '';
+    h += '<h3>🖥️ Mainframe & SAP Reference Guide</h3>';
+    h += '<p>This guide documents real TSO/ISPF commands for IBM z/OS mainframes (FCA, GM, Ford) and SAP ERP transaction codes (Harley-Davidson). Use these with the TN3270 Terminal view or a real mainframe connection via wc3270.</p>';
+
+    // === TSO/ISPF COMMANDS ===
+    h += '<h3>📋 TSO/ISPF Commands (IBM z/OS Mainframe)</h3>';
+    h += '<p>TSO (Time Sharing Option) is the interactive interface to z/OS. ISPF (Interactive System Productivity Facility) is the menu-driven overlay on top of TSO. These are the commands used at FCA, GM, Ford, and other automotive OEMs that run on IBM mainframes.</p>';
+
+    h += '<h4>Logging On</h4>';
+    h += '<pre>LOGON userid[/password]    — Log on to TSO (password can be omitted for secure entry)\nLOGON IBMUSER/SYS1         — MVS 3.8j TK4- default (full authority)\nLOGON HERC01/PASS4U       — MVS 3.8j TK4- regular user\nLOGON GUEST               — Guest logon on public mainframes\nLOGOFF                    — End TSO session</pre>';
+
+    h += '<h4>ISPF Primary Option Menu (after LOGON)</h4>';
+    h += '<pre>=0   Settings            — ISPF settings (colors, function keys)\n=1   View               — View data set (read-only)\n=2   Edit               — Edit data set\n=3   Utilities           — Utility menu (3.1-3.12)\n=3.1 Library              — Data set list (DSLIST)\n=3.2 Data Set             — Allocate, rename, delete data sets\n=3.3 Move/Copy            — Move or copy data sets\n==3.4 Data Set List       — List data sets (most used utility)\n=3.5 Volumes              — List volumes\n=4 Foreground             — Compile/load programs\n=5 Batch                  — Submit batch jobs\n=6 Command               — TSO command input (enter TSO commands here)\n=7 Dialog Test           — Test ISPF dialogs\n=8 LM Facility           — Library management\n=9 IBM Products          — IBM product menu\n=10 SDF                  — Software Data Facility\n=11 Workstation           — Workstation agent\n=12 STATISTICS           — Display session statistics\n=M More                  — Additional options\n=X Exit                  — Exit ISPF\n=Z Zoom                 — Zoom/full screen toggle</pre>';
+
+    h += '<h4>ISPF DSLIST Line Commands (option 3.4 — most used)</h4>';
+    h += '<p>Enter these in the left margin column next to a data set name in DSLIST (option 3.4):</p>';
+    h += '<pre>B   Browse             — View data set (read-only display)\nE   Edit               — Edit data set in full-screen editor\nC   Catalog            — Catalog the data set\nD   Delete             — Delete the data set\nR   Rename             — Rename the data set\nS   Short              — Display data set info (short)\nI   Information        — Display data set info (long)\nM   Member             — List members in PDS\nP   Print              — Print data set\nV   Verify             — Verify data set\nZ   Compress           — Compress PDS (free unused space)\nX   XREF               — Cross-reference\n/   Line command       — Place cursor command\n?   Short info         — One-line data set info</pre>';
+
+    h += '<h4>TSO Commands (enter at READY prompt or ISPF =6)</h4>';
+    h += '<pre>LISTCAT                    — List catalog entries (abbrev: LISTC)\nLISTCAT LEVEL(SYS1)        — List all SYS1.* data sets\nLISTDS \'dataset.name\'      — List data set attributes\nALLOCATE                   — Allocate a new data set (abbrev: ALLOC)\nFREE                       — Free (unallocate) a data set\nRENAME old.name new.name   — Rename a data set\nDELETE \'dataset.name\'      — Delete a data set\nSEND \'message\' USER(userid) — Send TSO message to another user\nSTATUS                     — Display job status\nSUBMIT \'dataset.name\'      — Submit batch JCL job\nOUTPUT                     — Display job output\nCANCEL jobname             — Cancel a running job\nTIME                       — Display CPU time used\nPROFILE                    — Display/change user profile\nHELP                       — TSO help facility\nLOGOFF                     — End TSO session</pre>';
+
+    h += '<h4>ISPF Editor Line Commands (in Edit/View mode)</h4>';
+    h += '<pre>I       Insert line(s)          — type I, I2, I3 for 1/2/3 lines\nD       Delete line(s)          — type D, D2, D5\nR       Repeat line(s)          — type R, R3\nC       Copy line(s)            — mark source, then A/B/O/P/F\nM       Move line(s)            — mark source, then A/B/O/P/F\nA       After                   — target: paste after this line\nB       Before                  — target: paste before this line\nO       Overwrite               — target: overwrite this line\nP       Preceding               — target: paste preceding line\nF       Following               — target: paste following line\nX       Exclude line            — hide from view (filter)\nS       Show line               — unhide excluded line\nCOLS    Show columns            — display column ruler\nMASK    Set mask                — set line mask for new lines\nBOUNDS  Set bounds              — set edit bounds\nBNDS    Same as BOUNDS\nTABLINE Set tab line            — define tab stops\nLC      Label copy             — copy labeled block\nMM      Block mark             — MM on first line, MM on last\nCC      Block copy             — CC on first, CC on last\nDD      Block delete           — DD on first, DD on last\nRR      Block repeat           — RR on first, RR on last</pre>';
+
+    h += '<h4>ISPF Editor Primary Commands (command line)</h4>';
+    h += '<pre>FIND string           — Search (abbrev: F). Use F string 1 NEXT\nCHANGE old new        — Find and replace (abbrev: C). C old new ALL\nSAVE                  — Save data set\nEND                   — Exit editor (save changes)\nCANCEL                — Exit editor (discard changes)\nCREATE member         — Create new PDS member from block\nMOVE member           — Move block to another member\nCOPY member           — Copy block to another member\nSORT A                — Sort ascending\nSORT D                — Sort descending\nLOCATE line#          — Jump to line (abbrev: L)\nRESET                 — Remove all line commands\nHEX ON/OFF            — Toggle hex display\nCAPS ON/OFF           — Toggle uppercase mode\nAUTOSAVE ON           — Enable auto-save\nBOUNDS               — Set column bounds\nCOLS                 — Display column ruler\nPROFILE              — Display edit profile\nRECOVERY ON          — Enable recovery\nHEX ON               — Show hex values\nBOUNDS 1 72          — Set bounds to cols 1-72\nSORT 1 80 A          — Sort by cols 1-80 ascending</pre>';
+
+    h += '<h4>SDSF (System Display and Search Facility)</h4>';
+    h += '<p>SDSF is used to view batch job output. Enter <code>SDSF</code> or option =M.S from ISPF:</p>';
+    h += '<pre>DA   Display Active      — Active jobs and started tasks\nI    Input               — Jobs waiting for execution\nO    Output              — Completed job output\nH    Held                — Held output\nST   Status              — Job status (most used)\nPR   Print               — Print output\nLOG  System Log          — View system console log\nSR   Spool               — Browse spool (JES2)\nOWNER *  Filter by owner — Enter userid to filter\nPRE *    Prefix filter    — Enter jobname prefix to filter\nSE       Select action   — S=select, P=purge, X=cancel\n?        Show output      — ? next to job name shows output files\nS        Select           — S next to job shows full output\nP        Purge           — Delete job output\nX        Cancel          — Cancel running job</pre>';
+
+    h += '<h4>FCA/Stellantis Mainframe Commands (CONVIS/PFCS)</h4>';
+    h += '<p>FCA uses WebSphere MQ for CONVIS broadcast and PFCS for plant floor communication. On the mainframe:</p>';
+    h += '<pre>SP   Sequence Process record   — CONVIS sequence broadcast\nSR   Sequence Response record   — Supplier response (acknowledgment)\nEP   Emergency Process record   — Fallback broadcast if comms lost\nSA   System Acknowledgment      — Auto-sent by host on receipt\nE    PFCS delivery sequence     — PFCS record type E\nG    PFCS delivery sequence     — PFCS record type G\nF8   PFCS trigger               — PFCS plant trigger broadcast\nF3   PFCS status                — PFCS plant status display</pre>';
+
+    h += '<h4>RACF Security Commands</h4>';
+    h += '<pre>LISTUSER userid           — Display user RACF info\nALTDATA userid            — Alter user attributes\nADDUSER userid            — Add new RACF user\nDELUSER userid            — Delete RACF user\nLISTGRP groupname        — Display group info\nCONNECT userid GROUP(grp) — Connect user to group\nPERMIT resource ACCESS(read) — Grant resource access\nSEARCH                    — Search RACF database</pre>';
+
+    // === SAP TRANSACTION CODES ===
+    h += '<h3>🟡 SAP ERP Transaction Codes (Harley-Davidson & OEMs)</h3>';
+    h += '<p>Harley-Davidson uses SAP ERP for manufacturing, inventory, and financials. These are the real SAP T-codes used at their York PA and Kansas City MO plants. Enter T-codes in the SAP command field (top-left corner).</p>';
+
+    h += '<h4>Material Management (MM) — Inventory</h4>';
+    h += '<pre>MM01  Create Material Master     — Add new material/part\nMM02  Change Material Master      — Modify material\nMM03  Display Material Master     — View material details\nMMBE  Stock Overview              — View stock by plant/location (MOST USED)\nMB52  List of Warehouse Stocks    — Stock list by material/plant\nMB51  Material Document List      — Goods movement history\nMB5B  Stock on Posting Date       — Stock as of specific date\nMB5T  Stock in Transit            — In-transit stock between plants\nMIGO  Goods Movement              — Post goods receipt/issue/transfer\nMB1A  Goods Issue                 — Issue materials to cost center\nMB1C  Goods Receipt               — Receive materials (no PO)\nMB03  Display Material Document   — View goods movement doc\nMB25  Reservation/Dependent Req   — Open reservations list\nMM60  Material Cockpit            — Material overview</pre>';
+
+    h += '<h4>Purchasing (MM-PO)</h4>';
+    h += '<pre>ME21N Create Purchase Order      — Create PO (new UI)\nME22N Change Purchase Order      — Modify PO\nME23N Display Purchase Order     — View PO\nME2K  Purchase Orders by Class    — List POs\nME2L  Purchase Orders by Vendor   — List POs by supplier\nME3A  Outline Agreement           — Display scheduling agreement\nME38  Scheduling Agreement         — Maintain delivery schedule\nME80  Overall Purchase Orders     — PO history\nME9F  Message Output               — PO print/email</pre>';
+
+    h += '<h4>Production Planning (PP)</h4>';
+    h += '<pre>CO01  Create Production Order     — Create production order\nCO02  Change Production Order     — Modify production order\nCO03  Display Production Order    — View production order\nCO11N Confirm Production Order    — Confirm order completion (GOODS RECEIPT)\nCOR2  Change Process Order        — Modify process order\nCOR3  Display Process Order       — View process order\nMD04  Stock/Requirements List     — MRP list (MOST USED for planning)\nMD05  MRP List                    — MRP planning results\nMD06  Collective MRP List         — Multiple materials MRP\nMD20  Create PIR                  — Planned independent requirement\nMD21  Change PIR                  — Modify PIR\nMD61  Create PIR                  — Create planned independent req\nMD62  Change PIR                  — Modify planned independent req\nCS01  Create BOM                  — Create bill of materials\nCS02  Change BOM                  — Modify BOM\nCS03  Display BOM                 — View BOM\nCA01  Create Routing              — Create production routing\nCA02  Change Routing              — Modify routing\nCA03  Display Routing             — View routing</pre>';
+
+    h += '<h4>Plant Maintenance (PM) — Forklift/Equipment</h4>';
+    h += '<pre>IE01  Create Equipment            — Create equipment master (forklift!)\nIE02  Change Equipment            — Modify equipment\nIE03  Display Equipment           — View equipment details\nIE10  Equipment List              — List all equipment\nIW31  Create Maintenance Order    — Create PM work order\nIW32  Change Maintenance Order    — Modify PM order\nIW33  Display Maintenance Order   — View PM order\nIW38  Order List (PM)             — List maintenance orders\nIP41  Create Maintenance Plan     — Create preventive maint plan\nIP42  Change Maintenance Plan     — Modify maint plan\nIF11  Equipment Hierarchy         — Equipment hierarchy view\nIM34  Create Measuring Point      — Create measurement point\nIM35  Change Measuring Point      — Modify measuring point\nIK11  Create Measurement Doc      — Record measurement reading\nIK12  Change Measurement Doc      — Modify measurement doc\nIK13  Display Measurement Doc     — View measurement reading</pre>';
+
+    h += '<h4>Sales & Distribution (SD)</h4>';
+    h += '<pre>VA01  Create Sales Order          — Create customer order\nVA02  Change Sales Order          — Modify sales order\nVA03  Display Sales Order         — View sales order\nVL01N Create Delivery             — Create outbound delivery\nVL02N Change Delivery             — Modify delivery\nVL03  Display Delivery            — View delivery\nVF01  Create Billing Document     — Create invoice\nVF02  Change Billing Document     — Modify invoice\nVF03  Display Billing Document    — View invoice\nVT01  Create Shipment             — Create shipment\nVT02  Change Shipment             — Modify shipment\nVT03  Display Shipment            — View shipment</pre>';
+
+    h += '<h4>Warehouse Management (WM)</h4>';
+    h += '<pre>LT01  Create Transfer Order       — Create TO (move goods in warehouse)\nLT02  Display Transfer Order       — View TO\nLT03  Create TO for Delivery       — Create TO for outbound delivery\nLT10  Display Storage Bins         — List storage bins by material\nLT12  Confirm Transfer Order       — Confirm TO completion\nLX02  Stock per Storage Bin        — Stock by bin location\nLX03  Stock per Warehouse Number   — Stock by warehouse\nLS01  Create Storage Bin           — Create new bin\nLS02  Change Storage Bin           — Modify bin\nLS24  Stock per Bin                — Detailed bin stock view</pre>';
+
+    h += '<h4>ABAP/Development (SE transactions)</h4>';
+    h += '<pre>SE11  ABAP Dictionary             — View/create tables, data elements\nSE16  Data Browser                 — View table contents (MOST USED)\nSE16N Data Browser (new)           — New data browser\nSE24  Class Builder                — View/create ABAP classes\nSE37  Function Builder             — View/create function modules\nSE38  ABAP Editor                  — View/edit ABAP programs\nSE80  Object Navigator             — ABAP development workbench\nSA38  Execute Program              — Execute ABAP program\nSM37  Background Jobs              — View batch jobs\nSM30  Maintain Table Views         — Maintain customizing tables\nSM31  Table Maintenance            — Maintain table entries\nST22  ABAP Runtime Error           — View ABAP dumps (short dumps)\nSM21  System Log                   — View system log\nSM59  RFC Destinations             — View/maintain RFC connections</pre>';
+
+    h += '<h4>Finance (FI)</h4>';
+    h += '<pre>FB50  G/L Account Document        — Post journal entry\nFB60  Enter Incoming Invoice       — Enter vendor invoice\nFB70  Enter Customer Invoice       — Create AR invoice\nF-28  Incoming Payment             — Record customer payment\nF-53  Outgoing Payment             — Record vendor payment\nFBL1N Vendor Line Items            — List AP entries\nFBL3N G/L Account Line Items       — List GL entries\nFBL5N Customer Line Items          — List AR entries\nFS10N Balance Display              — View account balance\nFAGLL03 G/L Line Items (new)       — New GL line item display</pre>';
+
+    h += '<h4>Harley-Davidson SAP-Specific Workflows</h4>';
+    h += '<p>At HD plants (York PA, Kansas City MO), common daily workflows:</p>';
+    h += '<pre>Daily Production Check:\n  1. MD04 — Check stock/requirements for the day\'s planned orders\n  2. CO01 — Create production orders for the day\n  3. CO11N — Confirm production as motorcycles are built\n  4. MIGO — Post goods receipt for finished motorcycles\n\nMaterial Shortage Check:\n  1. MD04 — Check for missing components\n  2. MB52 — Check warehouse stock levels\n  3. ME23N — Check PO delivery dates\n  4. ME38 — Update scheduling agreement if needed\n\nForklift PM (with OwlLogics SAP module):\n  1. IE03 — Display forklift equipment master\n  2. IW31 — Create PM order for service\n  3. IW32 — Release order (status CRTD -> REL)\n  4. IK11 — Record hour meter reading\n  5. IW32 — TECO (technically complete)\n  6. IW33 — Display closed order\n\nCKD Export to Hamburg:\n  1. VL01N — Create outbound delivery for CKD kit\n  2. VT01 — Create shipment (ocean to Hamburg)\n  3. VF01 — Create proforma invoice for customs\n  4. MIGO — Post goods issue for delivery</pre>';
+
+    h += '<h4>Connecting to Real SAP Systems</h4>';
+    h += '<p>For direct SAP access, you need:</p>';
+    h += '<ul>';
+    h += '<li><strong>SAP GUI for Windows</strong> — free download from SAP (requires SAP support portal access)</li>';
+    h += '<li><strong>SAP Logon</strong> — configure connection to HD\'s SAP system (server: <code>your-sap-server</code>, system number: <code>00</code>, client: <code>100</code>)</li>';
+    h += '<li>Enter T-codes in the command field at top-left of SAP GUI</li>';
+    h += '<li>For browser access: <strong>SAP Fiori</strong> (web-based UI) — requires SAP Gateway configured at HD</li>';
+    h += '<li>For API access: <strong>SAP RFC</strong> (Remote Function Call) — OwlLogics simulates BAPI calls but real SAP needs <code>node-rfc</code> library + SAP connection parameters</li>';
+    h += '</ul>';
+
+    h += '<h4>SAP Authorization Note</h4>';
+    h += '<div style="padding:10px;background:rgba(243,156,18,0.05);border-radius:var(--radius);border-left:3px solid var(--orange);font-size:10px;line-height:1.6">';
+    h += '<strong>Authorization:</strong> Every T-code requires authorization via SAP role assignment. At Harley-Davidson, your SAP user must have the appropriate roles (e.g., <code>SAP_TCODE_MM</code> for MM transactions). Contact the HD SAP Basis team if you get "No authorization for transaction" errors. OwlLogics\' SAP PM module simulates BAPI calls for training — real SAP requires valid credentials and network access to the SAP server.';
+    h += '</div>';
+
+    return h;
   }
 
   // ══════════════════════════════════════════════════════════
