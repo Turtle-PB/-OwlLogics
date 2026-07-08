@@ -16,7 +16,7 @@ If this project helps you, consider supporting development:
 
 [![Donate](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/adcockp)
 [![Patreon](https://img.shields.io/badge/Patreon-Support-f96854?style=for-the-badge&logo=patreon)](https://www.patreon.com/adcockp)
-[![Chime](https://img.shields.io/badge/Chime-Send_Cash-27AE60?style=for-the-badge&logo=cashapp&logoColor=white)](https://chime.com/mycode/adcockp)
+[![Chime](https://img.shields.io/badge/Chime-$Paul--Adcock--1-27AE60?style=for-the-badge&logo=cashapp&logoColor=white)](https://chime.com/mycode/adcockp)
 
 > _Every donation helps keep OwlLogics free and open source._
 
