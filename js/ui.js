@@ -5318,6 +5318,28 @@ const AutoSeqUI = (function () {
     AutoSeq.alert('success', 'Label Downloaded', sh.carrier + ' ' + sh.trackingNumber + ' (ZPL for Zebra printer)');
   }
 
+  function downloadManualPickList(plId) {
+    var text = YMS.generateManualPickList(plId);
+    if (!text) { AutoSeq.alert('error', 'Not Found', 'Pick list not found'); return; }
+    downloadFile(text, 'MANUAL-PICKLIST-' + plId + '.txt', 'text/plain');
+    AutoSeq.alert('success', 'Manual Pick List Downloaded', plId + ' — print and use if system is down');
+  }
+
+  function activateFailover() {
+    var reason = prompt('Enter failover reason (e.g. scanner down, network down, MSQM offline):', 'System unavailable');
+    if (!reason) return;
+    var pin = prompt('Enter supervisor PIN to authorize failover:', '');
+    var entry = YMS.activateFailover(reason, 'Current Operator', pin);
+    AutoSeq.alert('warning', 'FAILOVER ACTIVATED', 'Manual paper pick lists in use. Reason: ' + reason + '. Production continues.');
+    switchView('conveyor');
+  }
+
+  function deactivateFailover() {
+    YMS.deactivateFailover('Current Operator');
+    AutoSeq.alert('success', 'Digital Mode Restored', 'System back to normal. Enter any missed scans digitally.');
+    switchView('conveyor');
+  }
+
   // ══════════════════════════════════════════════════════════
   //  YARD MANAGEMENT VIEW
   // ══════════════════════════════════════════════════════════
@@ -5437,8 +5459,45 @@ const AutoSeqUI = (function () {
     h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🔄</span> Conveyor Pick-List System — Scan Totes → Build Skids → Ship</div><div class="panel-body">';
 
     h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">';
-    h += '<strong>Workflow (Terrabon-style):</strong> Pick list generated → Operator scans totes at conveyor station → Items verified against pick list → Completed skid moves on conveyor belt → Staged → Loaded on trailer → Shipped. Ship per skid, not per trailer.';
+    h += '<strong>Workflow (Terrabon-style):</strong> Pick list generated → Operator scans totes at conveyor station → Items verified against pick list → Completed skid moves on conveyor belt → Staged → Loaded on trailer → Shipped. Ship per skid, not per trailer.<br><br>';
+    h += '<strong>FAILSAFE:</strong> If scanner/printer/network/MSQM goes down, operators switch to <strong>manual paper pick lists</strong>. Production never stops. All failover events are logged with timestamp, operator, and reason for audit.';
     h += '</div>';
+
+    // Failover control panel
+    h += '<div class="ai-section-header">🛡️ Failover Control — Manual Mode</div>';
+    var foMode = YMS.state.failoverMode;
+    h += '<div class="card" style="margin-bottom:10px;border-color:' + (foMode ? 'var(--red)' : 'var(--emerald)') + '">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
+    h += '<div><strong style="color:' + (foMode ? 'var(--red)' : 'var(--emerald)') + '">' + (foMode ? '⚠️ FAILOVER ACTIVE' : '✅ Digital Mode (Normal)') + '</strong>';
+    if (foMode) h += ' — ' + YMS.state.failoverReason;
+    h += '</div>';
+    h += '<div>';
+    if (!foMode) {
+      h += '<button class="btn btn-sm btn-danger" onclick="AutoSeqUI.activateFailover()">⚠️ Activate Failover</button>';
+    } else {
+      h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.deactivateFailover()">✅ Restore Digital Mode</button>';
+    }
+    h += '</div>';
+    h += '</div>';
+    h += '</div>';
+
+    // Manual pick list download buttons
+    h += '<div style="margin-bottom:10px">';
+    h += '<strong style="font-size:11px">📄 Manual Paper Pick Lists (always available):</strong><br>';
+    YMS.state.pickLists.forEach(function(pl) {
+      h += '<button class="btn btn-sm mt-1" onclick="AutoSeqUI.downloadManualPickList(\'' + pl.id + '\')">📄 ' + pl.id + ' (' + pl.items.length + ' items)</button> ';
+    });
+    h += '</div>';
+
+    // Failover log
+    if (YMS.state.failoverLog.length > 0) {
+      h += '<div class="ai-section-header">📋 Failover Audit Log</div>';
+      h += '<table class="data-table"><thead><tr><th>Time</th><th>Reason</th><th>Operator</th><th>Supervisor</th><th>Action</th><th>System</th></tr></thead><tbody>';
+      YMS.state.failoverLog.forEach(function(fo) {
+        h += '<tr><td style="font-size:10px">' + fo.timestamp.replace('T',' ').substring(0,16) + '</td><td style="font-size:10px">' + fo.reason + '</td><td style="font-size:10px">' + fo.operator + '</td><td style="font-size:10px">' + fo.supervisorPin + '</td><td style="font-size:10px">' + fo.action + '</td><td style="font-size:10px">' + fo.system + '</td></tr>';
+      });
+      h += '</tbody></table>';
+    }
 
     // Conveyor stations
     h += '<div class="ai-section-header">⚙️ Conveyor Stations</div>';
@@ -6580,5 +6639,8 @@ const AutoSeqUI = (function () {
     downloadScanReport,
     rateShop,
     downloadLabel,
+    downloadManualPickList,
+    activateFailover,
+    deactivateFailover,
   };
 })();

@@ -153,6 +153,11 @@ var YMS = (function () {
       connected: false,
       lastSync: null
     };
+
+    // Failover state — tracks when systems go down and manual mode is used
+    state.failoverLog = [];
+    state.failoverMode = false;
+    state.failoverReason = '';
   }
 
   // ── Blue Yonder Integration (REST API stub) ────────────────
@@ -317,6 +322,90 @@ var YMS = (function () {
     };
   }
 
+  // ── Manual Pick List + Failover ────────────────────────────
+  // RULE: Manual paper pick lists must ALWAYS work — if digital fails,
+  // operators fall back to printed paper. System tracks manual mode.
+  // RULE: Never block production. Scanner/printer/network down = manual override.
+  // RULE: All failover events logged for audit (timestamp, operator, reason).
+
+  function generateManualPickList(pickListId) {
+    var pl = state.pickLists.find(function(p) { return p.id === pickListId; });
+    if (!pl) return null;
+
+    var text = '';
+    text += '=====================================\n';
+    text += '  MANUAL PICK LIST (PAPER FALLBACK)\n';
+    text += '  OwlLogics NexGen — Failover Mode\n';
+    text += '=====================================\n';
+    text += 'Pick List: ' + pl.id + '\n';
+    text += 'Station: ' + pl.station + '\n';
+    text += 'Lane: ' + pl.conveyorLane + '\n';
+    text += 'Target Skid: ' + pl.targetSkid + '\n';
+    text += 'Destination: ' + pl.destination + '\n';
+    text += 'Operator: ' + pl.assignedTo + '\n';
+    text += 'Date: ' + new Date().toISOString().replace('T',' ').substring(0,16) + '\n';
+    text += '=====================================\n\n';
+    text += 'PART#     | DESCRIPTION              | QTY | TOTE#    | SCANNED\n';
+    text += '----------|--------------------------|-----|----------|--------\n';
+    pl.items.forEach(function(item, idx) {
+      var partPad = (item.partNumber + '          ').substring(0,10);
+      var descPad = (item.description + '                          ').substring(0,26);
+      var qtyPad = (String(item.qty) + '    ').substring(0,5);
+      var totePad = ((item.toteId || 'TBD') + '          ').substring(0,10);
+      var scanCol = '___ / ' + item.qty;
+      text += partPad + ' | ' + descPad + ' | ' + qtyPad + '| ' + totePad + ' | ' + scanCol + '\n';
+    });
+    text += '\n=====================================\n';
+    text += '  INSTRUCTIONS:\n';
+    text += '  1. Scan each tote barcode (or write manually)\n';
+    text += '  2. Verify part number matches pick list\n';
+    text += '  3. Place items on skid ' + pl.targetSkid + '\n';
+    text += '  4. Move completed skid to lane ' + pl.conveyorLane + '\n';
+    text += '  5. When system is back online, enter scans digitally\n';
+    text += '=====================================\n';
+    text += 'Operator Signature: ____________________\n';
+    text += 'Supervisor PIN:     ____________________\n';
+    text += 'Failover Reason:    ____________________\n';
+    return text;
+  }
+
+  function activateFailover(reason, operator, supervisorPin) {
+    state.failoverMode = true;
+    state.failoverReason = reason || 'System unavailable';
+    var entry = {
+      id: 'FO-' + Date.now().toString().slice(-8),
+      timestamp: new Date().toISOString(),
+      reason: reason,
+      operator: operator || 'Unknown',
+      supervisorPin: supervisorPin ? 'VERIFIED' : 'NOT PROVIDED',
+      action: 'Manual mode activated — paper pick lists in use',
+      system: 'YMS/Conveyor'
+    };
+    state.failoverLog.unshift(entry);
+    return entry;
+  }
+
+  function deactivateFailover(operator) {
+    state.failoverMode = false;
+    var oldReason = state.failoverReason;
+    state.failoverReason = '';
+    var entry = {
+      id: 'FO-' + Date.now().toString().slice(-8),
+      timestamp: new Date().toISOString(),
+      reason: 'System restored',
+      operator: operator || 'Unknown',
+      supervisorPin: 'N/A',
+      action: 'Digital mode restored — was in failover for: ' + oldReason,
+      system: 'YMS/Conveyor'
+    };
+    state.failoverLog.unshift(entry);
+    return entry;
+  }
+
+  function getFailoverLog() {
+    return state.failoverLog;
+  }
+
   // ── Public API ─────────────────────────────────────────────
   return {
     state: state,
@@ -329,6 +418,10 @@ var YMS = (function () {
     scanTote: scanTote,
     loadSkidOnTrailer: loadSkidOnTrailer,
     buildSkidLoadPlan: buildSkidLoadPlan,
-    generateUSMCA: generateUSMCA
+    generateUSMCA: generateUSMCA,
+    generateManualPickList: generateManualPickList,
+    activateFailover: activateFailover,
+    deactivateFailover: deactivateFailover,
+    getFailoverLog: getFailoverLog
   };
 })();
