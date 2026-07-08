@@ -144,6 +144,12 @@ Full documentation is built into the app — click **📖 Documentation** in the
 
 Copyright (c) 2024 OwlLogics Contributors
 
+### ⚠️ Patent Rights Reserved
+
+The MIT License grants **copyright license only** — NOT patent license. All patent rights covering the methodologies, systems, and inventions in this software are **expressly reserved** by the copyright holders. See [PATENTS](PATENTS) file for the full patent notice.
+
+Commercial use of patented methodologies requires a separate patent license agreement.
+
 ---
 
 ## 🤝 Contributing

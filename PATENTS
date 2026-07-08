@@ -1,0 +1,48 @@
+PATENT NOTICE — OwlLogics NexGen Owl Mode
+
+Copyright (c) 2024 OwlLogics Contributors
+
+All patent rights are hereby RESERVED by the copyright holders.
+
+While this software is licensed under the MIT License for source code usage,
+modification, and distribution, NO patent license is granted, implied, or
+conferred by the distribution of this software.
+
+Any patent rights covering the methodologies, systems, processes, or
+inventions implemented in this software — including but not limited to:
+
+  - The 3D rack visualization system with poka-yoke validation
+  - The multi-protocol MSQM data streaming architecture
+  - The SAP PM BAPI simulation engine for forklift fleet management
+  - The local AI optimization engine for sequence/route/forklift/rack analysis
+  - The SAP IDoc generation pipeline (DELVRY07, ORDERS05, INVOIC02, MATMAS05)
+  - The Azure IoT Hub integration with Device Twin and Direct Methods
+  - The CKD export compliance label system with HS code tracking
+  - The TN3270 terminal emulator with public mainframe preset system
+  - The shipyard/rail/pipeline logistics visualization system
+  - The inter-building delivery ticket workflow with cost analysis
+  - The NextGen vs OwlLogics comparison methodology
+  - The PWA boot loader with verbose step-by-step dependency verification
+
+remain the exclusive property of the copyright holders.
+
+Users of this software acknowledge that:
+
+1. The MIT License grants copyright license only — NOT patent license.
+2. Any commercial use of patented methodologies requires a separate patent
+   license agreement from the copyright holders.
+3. The copyright holders retain the right to enforce patent rights against
+   any party that infringes upon the patented methodologies.
+
+For patent licensing inquiries, contact the copyright holders.
+
+This notice is provided in accordance with 35 U.S.C. § 287(a) to the extent
+applicable, and serves as constructive notice of the patent rights reserved
+herein.
+
+============================================================
+
+NOTHING IN THIS NOTICE LIMITS THE MIT LICENSE TERMS FOR SOURCE CODE
+USAGE, MODIFICATION, OR REDISTRIBUTION. THE PATENT RIGHTS RESERVED
+HEREIN ARE ADDITIONAL TO AND DO NOT RESTRICT THE COPYRIGHT LICENSE
+GRANTED UNDER THE MIT LICENSE.
