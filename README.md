@@ -165,6 +165,8 @@ The MIT License grants **copyright license only** — NOT patent license. All pa
 
 Commercial use of patented methodologies requires a separate patent license agreement from Paul Adcock (paul.dev.co@outlook.com).
 
+For patent licensing, commercial inquiries, or legal matters, contact Paul Adcock directly at **paul.dev.co@outlook.com** to speak with Paul and his legal counsel.
+
 ---
 
 ## 🤝 Contributing
