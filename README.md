@@ -14,7 +14,7 @@
 
 If this project helps you, consider supporting development:
 
-[![Donate](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/owllogics)
+[![Donate](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/adcockp)
 
 > _Every donation helps keep OwlLogics free and open source._
 
