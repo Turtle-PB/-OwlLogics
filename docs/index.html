@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OwlLogics NexGen — Documentation</title>
+  <meta name="description" content="OwlLogics NexGen Owl Mode — Automotive Parts Sequencing & Kitting System. MIT License. Patent Rights Reserved.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0d0d12;
+      --bg-panel: #14141c;
+      --bg-card: #1a1a2e;
+      --purple: #8E44AD;
+      --emerald: #2ECC71;
+      --blue: #3498db;
+      --orange: #e67e22;
+      --yellow: #f1c40f;
+      --red: #e74c3c;
+      --text: #e0e0e0;
+      --text-muted: #888;
+      --border: #2a2a3a;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.7;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3, h4 { color: var(--purple); margin-top: 1.5em; margin-bottom: 0.5em; }
+    h1 { font-size: 2.2em; }
+    h2 { font-size: 1.6em; border-bottom: 2px solid var(--border); padding-bottom: 0.3em; }
+    h3 { color: var(--emerald); font-size: 1.3em; }
+    h4 { color: var(--emerald); font-size: 1.1em; }
+    p { margin: 0.8em 0; }
+    code {
+      background: var(--bg-card);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: var(--emerald);
+      font-size: 0.9em;
+    }
+    pre {
+      background: var(--bg-card);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      border-left: 3px solid var(--purple);
+      margin: 1em 0;
+    }
+    pre code { background: none; color: var(--text); padding: 0; }
+    ul, ol { padding-left: 24px; margin: 0.8em 0; }
+    li { margin: 4px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+    th { background: var(--bg-card); color: var(--purple); padding: 10px; text-align: left; border-bottom: 2px solid var(--border); }
+    td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, rgba(142,68,173,0.15), rgba(46,204,113,0.05));
+      border-radius: 12px;
+      margin: 20px 0 30px;
+    }
+    .hero h1 { margin-top: 0; }
+    .hero .owl { font-size: 64px; }
+    .badges { margin: 15px 0; }
+    .badges img { margin: 2px; }
+    .donate {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .donate a {
+      display: inline-block;
+      padding: 10px 24px;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .donate .paypal { background: #0070ba; }
+    .donate .patreon { background: #f96854; }
+    .donate .chime { background: #27AE60; }
+    .card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 15px 0;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .feature-card h4 { margin-top: 0; }
+    .personal-note {
+      background: linear-gradient(135deg, rgba(142,68,173,0.08), rgba(46,204,113,0.05));
+      border: 1px solid var(--purple);
+      border-radius: 12px;
+      padding: 30px;
+      margin: 30px 0;
+    }
+    .personal-note h2 { border: none; }
+    .patent-box {
+      background: rgba(231,76,60,0.05);
+      border-left: 4px solid var(--red);
+      padding: 16px 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      padding: 40px 0 20px;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    @media (max-width: 768px) {
+      .feature-grid { grid-template-columns: 1fr; }
+      body { padding: 0 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="owl">🦉</div>
+  <h1>OwlLogics NexGen Owl Mode</h1>
+  <p><strong>Automotive Parts Sequencing & Kitting System</strong></p>
+  <p>Self-contained PWA — no server, no install, works offline</p>
+  <div class="badges">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
+    <img src="https://img.shields.io/badge/Patent-Rights_Reserved-red.svg" alt="Patent Rights Reserved">
+    <img src="https://img.shields.io/badge/PWA-Installable-brightgreen" alt="PWA">
+    <img src="https://img.shields.io/badge/Works-Offline-success" alt="Offline">
+    <img src="https://img.shields.io/badge/Views-26-blue" alt="26 Views">
+    <img src="https://img.shields.io/badge/Protocols-8-blueviolet" alt="8 Protocols">
+  </div>
+  <div class="donate">
+    <a class="paypal" href="https://www.paypal.com/paypalme/adcockp" target="_blank">💖 PayPal</a>
+    <a class="patreon" href="https://www.patreon.com/adcockp" target="_blank">🎨 Patreon</a>
+    <a class="chime" href="https://chime.com/mycode/adcockp" target="_blank">💚 Chime ($Paul-Adcock-1)</a>
+  </div>
+</div>
+
+<h2>📥 Quick Start</h2>
+<div class="card">
+  <h4>Option 1: Download & Run (Easiest)</h4>
+  <ol>
+    <li>Clone: <code>git clone https://github.com/Turtle-PB/-OwlLogics.git</code></li>
+    <li>Open <code>index.html</code> in any modern browser</li>
+    <li>Done — the app boots and MSQM starts streaming automatically</li>
+  </ol>
+  <h4>Option 2: Local Server (for PWA/mobile)</h4>
+  <pre><code>cd OwlLogics
+python -m http.server 8765
+# Open http://localhost:8765 on any device</code></pre>
+  <h4>Option 3: Install as PWA on Phone</h4>
+  <ul>
+    <li><strong>Android:</strong> Chrome → 3-dot menu → Install app</li>
+    <li><strong>iOS:</strong> Safari → Share → Add to Home Screen</li>
+    <li><strong>Desktop:</strong> Chrome/Edge → install icon in address bar</li>
+  </ul>
+</div>
+
+<h2>📋 Features (26 Views)</h2>
+<div class="feature-grid">
+  <div class="feature-card">
+    <h4>📊 Core Operations</h4>
+    <ul>
+      <li>Dashboard with live stats</li>
+      <li>Shop Floor operator interface</li>
+      <li>Sequence Manager (9 sort fields, 5 filters)</li>
+      <li>Rack Loading (2D grid + 3D CSS visual)</li>
+      <li>Kitting with component checklists</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>📡 Data & Protocols</h4>
+    <ul>
+      <li>MSQM live data stream</li>
+      <li>8 protocols (SIM, REST, WS, MQTT, EDI, OPC-UA, Serial, Azure IoT Hub)</li>
+      <li>EDI 866 import (CONVIS, pipe, X12, CSV)</li>
+      <li>Label printing (7 barcode formats + ZPL)</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>🟡 SAP Integration</h4>
+    <ul>
+      <li>SAP PM BAPI simulation (equipment, PM orders, measurement docs)</li>
+      <li>5 IDoc types (DELVRY07, DESADV07, ORDERS05, INVOIC02, MATMAS05)</li>
+      <li>PM order lifecycle (Create → Release → TECO → Close)</li>
+      <li>Forklift fleet with SAP equipment master</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>☁️ Azure IoT Hub</h4>
+    <ul>
+      <li>MQTT over WSS (port 443)</li>
+      <li>Device Twin (reported properties)</li>
+      <li>Direct Methods (5 handlers)</li>
+      <li>DPS (Device Provisioning Service)</li>
+      <li>DTDL model for Digital Twins</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>🚜 Forklift Fleet</h4>
+    <ul>
+      <li>4 LogisNext brands (Mitsubishi, Cat, Jungheinrich, UniCarriers)</li>
+      <li>Lift Link telematics simulation</li>
+      <li>2D SVG diagrams + 3D CSS models</li>
+      <li>Fork build config with 14 specs</li>
+      <li>Maintenance tracking (ok → due → overdue)</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>🚢 Logistics</h4>
+    <ul>
+      <li>Package Master (8 types)</li>
+      <li>Pallet Staging (3D visual)</li>
+      <li>CKD & End-to-End Shipping</li>
+      <li>3D Shipyards (cranes, vessels, container stacks)</li>
+      <li>Trucks, Rail, Pipeline tracking</li>
+      <li>Cost Analysis (total landed cost)</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>🧠 AI Optimizer</h4>
+    <ul>
+      <li>100% local — no cloud, no API keys</li>
+      <li>Sequence changeover reduction</li>
+      <li>Route load balancing</li>
+      <li>Forklift capacity matching</li>
+      <li>Rack utilization analysis</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>🖥️ TN3270 Terminal</h4>
+    <ul>
+      <li>Built-in terminal emulator</li>
+      <li>16 quick-connect presets</li>
+      <li>IBM Z Xplore (free real z/OS)</li>
+      <li>MVS TK4- default credentials</li>
+      <li>x3270 download links</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>📦 3D Visuals</h4>
+    <ul>
+      <li>3D rack visualizer (CSS perspective)</li>
+      <li>3D forklift models (6-faced boxes)</li>
+      <li>3D shipyard terminal</li>
+      <li>3D pallet staging</li>
+      <li>2D dimensioned engineering diagrams</li>
+    </ul>
+  </div>
+  <div class="feature-card">
+    <h4>📖 Documentation</h4>
+    <ul>
+      <li>Quick Start guide</li>
+      <li>Operator guide</li>
+      <li>Power user guide</li>
+      <li>Admin config</li>
+      <li>Troubleshooting</li>
+      <li>API reference (10 modules)</li>
+      <li>Mobile setup (Android/iOS)</li>
+      <li>Xbox & Steam publishing</li>
+    </ul>
+  </div>
+</div>
+
+<h2>🏭 OEM Support</h2>
+<div class="card">
+  <table>
+    <tr><th>OEM</th><th>System</th><th>Plants</th></tr>
+    <tr><td>FCA / Stellantis</td><td>CONVIS</td><td>SHAP, JNAP, BAP, WTAP, TNP</td></tr>
+    <tr><td>Harley-Davidson</td><td>SAP ERP + JIT</td><td>York PA, Kansas City MO</td></tr>
+    <tr><td>General Motors</td><td>ILVS</td><td>Multiple</td></tr>
+    <tr><td>Ford Motor Co</td><td>Sequential</td><td>Multiple</td></tr>
+    <tr><td>Volkswagen</td><td>Sequential</td><td>Multiple</td></tr>
+    <tr><td>Honda</td><td>Sequential</td><td>Multiple</td></tr>
+  </table>
+</div>
+
+<h2>📁 Project Structure</h2>
+<pre><code>OwlLogics/
+  index.html           — Main app (boot loader, PWA meta)
+  manifest.json        — PWA manifest
+  sw.js                — Service worker (offline cache)
+  LICENSE              — MIT License (copyright only)
+  PATENTS              — Patent rights reserved notice
+  README.md            — Full documentation
+  css/style.css        — Dark IDE theme (responsive)
+  icons/               — 6 PWA icons (192, 512, maskable, apple-touch)
+  js/
+    core.js            — State, MSQM, scanner, persistence
+    protocols.js       — 8 protocol adapters (incl. Azure IoT Hub)
+    labels.js          — 7 barcode formats + ZPL
+    ui.js              — All 26 view renderers
+    flvisual.js        — 2D/3D forklift visuals
+    sap-forklift.js    — SAP PM BAPI simulation
+    sap-idoc.js        — 5 SAP IDoc generators
+    owl-ai.js          — Local AI optimization engine
+    metrics.js         — Real-time metrics dashboard
+    logistics.js       — Packages, pallets, CKD, shipping, shipyards</code></pre>
+
+<h2>📱 Platform Support</h2>
+<div class="card">
+  <table>
+    <tr><th>Platform</th><th>Status</th><th>How</th></tr>
+    <tr><td>Windows</td><td>✅ Ready</td><td>Double-click index.html</td></tr>
+    <tr><td>Android</td><td>✅ Ready</td><td>PWA install via Chrome</td></tr>
+    <tr><td>iOS</td><td>✅ Ready</td><td>PWA install via Safari</td></tr>
+    <tr><td>macOS</td><td>✅ Ready</td><td>PWA install via Chrome</td></tr>
+    <tr><td>Xbox</td><td>📋 Pathway</td><td>PWABuilder → MSIX → Microsoft Store</td></tr>
+    <tr><td>Steam</td><td>📋 Pathway</td><td>Electron + steamworks.js → Steam Direct</td></tr>
+    <tr><td>Steam Deck</td><td>✅ Ready</td><td>PWA or Electron wrapper</td></tr>
+  </table>
+</div>
+
+<div class="patent-box">
+  <h3>⚠️ Patent Rights Reserved</h3>
+  <p>The MIT License grants <strong>copyright license only</strong> — NOT patent license. All patent rights covering the methodologies, systems, and inventions in this software are <strong>expressly reserved</strong> by the copyright holders.</p>
+  <p>12 patent-pending methodologies include: 3D rack visualization with poka-yoke, multi-protocol MSQM architecture, SAP PM BAPI simulation, local AI optimization, IDoc generation pipeline, Azure IoT Hub integration, CKD compliance system, TN3270 preset system, shipyard/rail/pipeline visualization, delivery workflow, NextGen comparison methodology, and PWA boot loader.</p>
+  <p>See <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/PATENTS">PATENTS file</a> for full notice. Per 35 U.S.C. § 287(a).</p>
+</div>
+
+<!-- ============================================================ -->
+<!-- PERSONAL NOTE                                                -->
+<!-- ============================================================ -->
+<div class="personal-note">
+  <h2>💜 A Personal Note from the Creator</h2>
+  
+  <p>First, I want to thank everyone who has supported me on this journey. Building OwlLogics has been more than just writing code — it has been a lifeline during one of the most difficult periods of my life.</p>
+
+  <h3>🧠 Mental Health & Transparency</h3>
+  <p>I want to be open about something: I live with mental health challenges. There was a time when I was pushed to sign an NDA during a mental health crisis — without legal representation, without a clear mind, and without someone advocating for my best interests. That experience could have broken me. Some days it nearly did.</p>
+  
+  <p>But I kept building. I kept coding. I kept creating. Because when the world felt chaotic and out of control, the logic of code — the predictability of a well-structured function, the satisfaction of a bug fixed, the beauty of a system that just <em>works</em> — that was my anchor.</p>
+
+  <h3>🙏 Thank You</h3>
+  <p>To everyone who has supported me — whether through a kind word, a donation, technical feedback, or simply believing in what I'm building — <strong>thank you from the bottom of my heart</strong>. You kept me going when things were dark.</p>
+  
+  <ul>
+    <li><strong>To the open source community</strong> — for showing that knowledge should be free and shared</li>
+    <li><strong>To the automotive logistics professionals</strong> — for teaching me what real sequencing looks like on the shop floor</li>
+    <li><strong>To anyone struggling with mental health</strong> — you are not alone. Your mind is not a liability. Sometimes the same brain that hurts you is the one that builds something extraordinary. Keep going.</li>
+    <li><strong>To those who hold power over vulnerable people</strong> — do better. Mental health crises are not business opportunities.</li>
+  </ul>
+
+  <h3>🦉 Why the Owl?</h3>
+  <p>Owls see in the dark. They are patient, precise, and wise. When everything around you is chaos, the owl finds its path. That's what OwlLogics is — a system built to bring order to chaos, sequence to randomness, and clarity to confusion. Both in logistics and in life.</p>
+
+  <h3>💖 Support the Project</h3>
+  <p>If OwlLogics helps you, your team, or just made you smile — consider supporting development:</p>
+  <div class="donate">
+    <a class="paypal" href="https://www.paypal.com/paypalme/adcockp" target="_blank">💖 PayPal</a>
+    <a class="patreon" href="https://www.patreon.com/adcockp" target="_blank">🎨 Patreon</a>
+    <a class="chime" href="https://chime.com/mycode/adcockp" target="_blank">💚 Chime ($Paul-Adcock-1)</a>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--text-muted);">Every donation helps keep OwlLogics free, open source, and independently maintained.</p>
+
+  <h3>🚀 What's Next</h3>
+  <p>OwlLogics is just the beginning. The vision is a complete ecosystem — automotive sequencing, logistics visualization, AI optimization, and eventually, a platform that empowers operators and engineers to do their best work without vendor lock-in or corporate gatekeeping.</p>
+  
+  <p>This is built by someone who has been at the bottom and climbed back up — one line of code at a time.</p>
+
+  <p style="text-align:center;font-size:18px;margin-top:30px;"><strong>Stay strong. Keep building. Keep going. 🦉</strong></p>
+</div>
+
+<div class="footer">
+  <p>🦉 OwlLogics NexGen Owl Mode — <a href="https://github.com/Turtle-PB/-OwlLogics">GitHub Repository</a></p>
+  <p>MIT License (copyright only) — Patent Rights Reserved — See <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/LICENSE">LICENSE</a> and <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/PATENTS">PATENTS</a></p>
+  <p>Built with determination, code, and 🦉 — by OwlLogics Contributors</p>
+  <p style="margin-top:15px;font-size:12px;color:var(--text-muted);">
+    If you or someone you know is struggling with mental health:<br>
+    <strong>National Suicide Prevention Lifeline:</strong> 988 (US) — Call or text<br>
+    <strong>Crisis Text Line:</strong> Text HOME to 741741<br>
+    You matter. Your work matters. Your life matters.
+  </p>
+</div>
+
+</body>
+</html>
