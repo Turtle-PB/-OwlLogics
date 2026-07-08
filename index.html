@@ -159,6 +159,8 @@
   <script src="js/logistics.js"></script>
   <script src="js/standards.js"></script>
   <script src="js/fleet-logistics.js"></script>
+  <script src="js/trailer-print.js"></script>
+  <script src="js/yms.js"></script>
   <script>
     // ── Verbose Boot Loader ───────────────────────────────────
     const BootLoader = (function () {
@@ -242,7 +244,9 @@
               typeof MetricsDashboard !== 'undefined' &&
               typeof Logistics !== 'undefined' &&
               typeof Standards !== 'undefined' &&
-              typeof FleetLogistics !== 'undefined') {
+              typeof FleetLogistics !== 'undefined' &&
+              typeof TrailerPrint !== 'undefined' &&
+              typeof YMS !== 'undefined') {
             resolve();
           } else {
             setTimeout(check, 20);
@@ -260,7 +264,7 @@
       // Step 0: Verify scripts loaded
       await BootLoader.step('📚', 'Verifying script dependencies', async function() {
         await waitForScripts();
-        return '13 JS modules loaded';
+        return '15 JS modules loaded';
       });
 
       // Step 1: Load core data
@@ -284,6 +288,8 @@
         Logistics.init();
         FleetLogistics.initGPS();
         FleetLogistics.initCKDRetrieval();
+        TrailerPrint.init();
+        YMS.init();
         return AutoSeq.state.commodities.length + ' commodities, ' + Logistics.getLogisticsStats().packages + ' packages, ' + FleetLogistics.state.trailers.length + ' trailers';
       });
 

@@ -38,6 +38,11 @@ const AutoSeqUI = (function () {
     docs:         { icon: '📖',  label: 'Documentation',       render: renderDocs },
     standards:    { icon: '📐',  label: 'Standards & Compliance', render: renderStandards },
     fleet:        { icon: '🚛',  label: 'Fleet & GPS',           render: renderFleet },
+    trailers:     { icon: '🚚',  label: 'Trailer Mgmt',         render: renderTrailers },
+    printing:     { icon: '🖨️',  label: 'Print Server',         render: renderPrinting },
+    yms:          { icon: '🏭',  label: 'Yard Management',      render: renderYMS },
+    conveyor:     { icon: '🔄',  label: 'Conveyor Pick List',   render: renderConveyor },
+    blueyonder:   { icon: '🔵',  label: 'Blue Yonder WMS',      render: renderBlueYonder },
   };
 
   // ── Init ───────────────────────────────────────────────────
@@ -4928,6 +4933,457 @@ const AutoSeqUI = (function () {
   }
 
   // ══════════════════════════════════════════════════════════
+  //  TRAILER MANAGEMENT VIEW
+  // ══════════════════════════════════════════════════════════
+
+  function renderTrailers() {
+    var h = '';
+    var trailers = TrailerPrint.state.trailers;
+    var stats = TrailerPrint.getTrailerStats();
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🚚</span> Trailer Management — Fleet, Maintenance, Compliance</div><div class="panel-body">';
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">' + stats.total + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">In Transit</div><div class="stat-value" style="color:var(--blue)">' + stats.in_transit + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Loading</div><div class="stat-value" style="color:var(--yellow)">' + stats.loading + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">At Dock</div><div class="stat-value" style="color:var(--emerald)">' + stats.at_dock + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Available</div><div class="stat-value">' + stats.available + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Maint</div><div class="stat-value" style="color:var(--red)">' + stats.maintenance + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Expiring</div><div class="stat-value" style="color:var(--orange)">' + stats.expiring + '</div></div>';
+    h += '</div>';
+
+    h += '<table class="data-table"><thead><tr><th>Unit</th><th>Type</th><th>Plate</th><th>VIN</th><th>Carrier</th><th>Driver</th><th>Status</th><th>Dock</th><th>Weight</th><th>Tires</th><th>Brakes</th><th>Lights</th><th>Reg Exp</th><th>Ins Exp</th><th>Next Insp</th><th>Cargo</th><th>Notes</th></tr></thead><tbody>';
+    trailers.forEach(function(t) {
+      var stColor = t.status === 'in_transit' ? 'var(--blue)' : t.status === 'loading' ? 'var(--yellow)' : t.status === 'at_dock' ? 'var(--emerald)' : t.status === 'maintenance' ? 'var(--red)' : t.status === 'available' ? 'var(--text-primary)' : 'var(--text-muted)';
+      h += '<tr>';
+      h += '<td><strong>' + t.unit + '</strong></td>';
+      h += '<td style="font-size:10px">' + t.type + '</td>';
+      h += '<td class="font-mono" style="font-size:9px">' + t.plate + '</td>';
+      h += '<td class="font-mono" style="font-size:9px">' + t.vin + '</td>';
+      h += '<td style="font-size:10px">' + t.carrier + '</td>';
+      h += '<td style="font-size:10px">' + t.assignedDriver + '</td>';
+      h += '<td style="color:' + stColor + ';font-weight:600">' + t.status.replace(/_/g,' ') + '</td>';
+      h += '<td>' + t.dockDoor + '</td>';
+      h += '<td style="font-size:10px">' + t.loadedWeight.toLocaleString() + '/' + t.maxWeight.toLocaleString() + '</td>';
+      h += '<td style="color:' + (t.tireCondition === 'Poor' ? 'var(--red)' : t.tireCondition === 'Fair' ? 'var(--yellow)' : 'var(--emerald)') + '">' + t.tireCondition + '</td>';
+      h += '<td style="color:' + (t.brakeCondition === 'Poor' ? 'var(--red)' : t.brakeCondition === 'Fair' ? 'var(--yellow)' : 'var(--emerald)') + '">' + t.brakeCondition + '</td>';
+      h += '<td>' + (t.lightsOK ? '✅' : '❌') + '</td>';
+      h += '<td style="font-size:10px;color:' + (new Date(t.registrationExp) < new Date(Date.now() + 60*86400000) ? 'var(--red)' : 'var(--text-primary)') + '">' + t.registrationExp + '</td>';
+      h += '<td style="font-size:10px;color:' + (new Date(t.insuranceExp) < new Date(Date.now() + 60*86400000) ? 'var(--red)' : 'var(--text-primary)') + '">' + t.insuranceExp + '</td>';
+      h += '<td style="font-size:10px">' + t.nextInspection + '</td>';
+      h += '<td style="font-size:10px">' + t.cargo + '</td>';
+      h += '<td style="font-size:9px;color:var(--text-muted)">' + t.notes + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  PRINT SERVER VIEW
+  // ══════════════════════════════════════════════════════════
+
+  function renderPrinting() {
+    var h = '';
+    var stats = TrailerPrint.getPrinterStats();
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🖨️</span> Print Server — Windows Print Server, HP/Zebra/Brother</div><div class="panel-body">';
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Printers</div><div class="stat-value">' + stats.total + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Online</div><div class="stat-value" style="color:var(--emerald)">' + stats.online + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Offline</div><div class="stat-value" style="color:var(--red)">' + stats.offline + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Zebra ZPL</div><div class="stat-value" style="color:var(--blue)">' + stats.zpl + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">HP</div><div class="stat-value">' + stats.hp + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Brother</div><div class="stat-value">' + stats.brother + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">DHCP</div><div class="stat-value" style="color:var(--orange)">' + stats.dhcp + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Low Toner</div><div class="stat-value" style="color:var(--red)">' + stats.lowToner + '</div></div>';
+    h += '</div>';
+
+    // Print servers
+    h += '<div class="ai-section-header">🖥️ Print Servers</div>';
+    h += '<table class="data-table"><thead><tr><th>Server</th><th>Host</th><th>OS</th><th>IP</th><th>Port</th><th>Protocol</th><th>DHCP</th><th>Domain</th><th>Printers</th><th>Status</th><th>Uptime</th><th>Config</th></tr></thead><tbody>';
+    TrailerPrint.state.printServers.forEach(function(ps) {
+      h += '<tr>';
+      h += '<td><strong>' + ps.name + '</strong></td>';
+      h += '<td class="font-mono" style="font-size:10px">' + ps.host + '</td>';
+      h += '<td style="font-size:10px">' + ps.os + '</td>';
+      h += '<td class="font-mono">' + ps.ip + '</td>';
+      h += '<td>' + ps.port + '</td>';
+      h += '<td style="font-size:10px">' + ps.protocol + '</td>';
+      h += '<td>' + (ps.dhcp ? '✅ Yes' : '❌ Static') + '</td>';
+      h += '<td class="font-mono" style="font-size:10px">' + ps.domain + '</td>';
+      h += '<td>' + ps.printers + '</td>';
+      h += '<td style="color:var(--emerald)">' + ps.status + '</td>';
+      h += '<td style="font-size:10px">' + ps.uptime + '</td>';
+      h += '<td><button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.downloadPrintConfig(\'' + ps.id + '\')">📄 PowerShell</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Printers
+    h += '<div class="ai-section-header">🖨️ Printers (HP, Zebra, Brother)</div>';
+    h += '<table class="data-table"><thead><tr><th>Name</th><th>Make</th><th>Model</th><th>IP</th><th>DHCP</th><th>MAC</th><th>Port</th><th>Driver</th><th>Location</th><th>Status</th><th>Toner</th><th>Jobs Today</th><th>Last Job</th><th>Action</th></tr></thead><tbody>';
+    TrailerPrint.state.printers.forEach(function(p) {
+      var tonerColor = p.tonerLevel < 25 ? 'var(--red)' : p.tonerLevel < 50 ? 'var(--yellow)' : 'var(--emerald)';
+      h += '<tr>';
+      h += '<td><strong>' + p.name + '</strong></td>';
+      h += '<td>' + p.make + '</td>';
+      h += '<td style="font-size:10px">' + p.model + '</td>';
+      h += '<td class="font-mono" style="font-size:10px">' + p.ip + '</td>';
+      h += '<td>' + (p.dhcp ? '✅' : '❌') + '</td>';
+      h += '<td class="font-mono" style="font-size:9px">' + p.mac + '</td>';
+      h += '<td>' + p.port + '</td>';
+      h += '<td style="font-size:10px">' + p.driver + '</td>';
+      h += '<td style="font-size:10px">' + p.location + '</td>';
+      h += '<td style="color:' + (p.status === 'online' ? 'var(--emerald)' : 'var(--red)') + '">' + p.status + '</td>';
+      h += '<td style="color:' + tonerColor + '">' + p.tonerLevel + '%</td>';
+      h += '<td>' + p.jobsToday + '</td>';
+      h += '<td style="font-size:10px">' + p.lastJob + '</td>';
+      h += '<td><button class="btn btn-sm" onclick="AutoSeqUI.testPrint(\'' + p.id + '\')">🧪 Test</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Info
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.6">';
+    h += '<strong>Printer Setup:</strong> Syncreon traditionally used HP LaserJet printers (static IP) and Zebra ZPL printers for labels. Later added Brother printers on DHCP. Static IPs are more reliable for production but require manual IP management. DHCP is easier but IPs can change — use DHCP reservations for stability.<br>';
+    h += '<strong>ZPL Printers:</strong> Zebra ZT411 (203/300 DPI) and ZD420 are used for AIAG B-3/B-10/B-18 labels and sequence labels. OwlLogics generates ZPL directly via the Label Printing view.<br>';
+    h += '<strong>Windows Print Server:</strong> Uses Print Management Console (PMC) on Windows Server. PowerShell cmdlets: Add-PrinterPort, Add-PrinterDriver, Add-Printer. Click "PowerShell" button above to download the configuration script.';
+    h += '</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function testPrint(printerId) {
+    var result = TrailerPrint.sendTestPage(printerId);
+    if (result.success) AutoSeq.alert('success', 'Test Page Sent', result.message);
+    else AutoSeq.alert('error', 'Test Failed', result.message);
+    switchView('printing');
+  }
+
+  function downloadPrintConfig(psId) {
+    var config = TrailerPrint.generateWindowsPrintServerConfig(psId);
+    downloadFile(config, 'print-server-' + psId + '.ps1', 'text/plain');
+    AutoSeq.alert('success', 'PowerShell Script Downloaded', 'Run on Windows Server to configure printers');
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  YARD MANAGEMENT VIEW
+  // ══════════════════════════════════════════════════════════
+
+  function renderYMS() {
+    var h = '';
+    var spots = YMS.state.yardSpots;
+    var occupied = spots.filter(function(s){return s.trailerId;}).length;
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🏭</span> Yard Management System (YMS) — Multi-Industry</div><div class="panel-body">';
+
+    // Industry selector
+    h += '<div style="margin-bottom:12px">';
+    h += '<label style="font-size:11px;font-weight:600;margin-right:8px">Industry Mode:</label>';
+    h += '<select onchange="AutoSeqUI.setYMSIndustry(this.value)" style="font-size:11px;padding:4px 8px;background:var(--bg-panel);border:1px solid var(--border);color:var(--text-primary);border-radius:var(--radius)">';
+    Object.keys(YMS.INDUSTRIES).forEach(function(key) {
+      var ind = YMS.INDUSTRIES[key];
+      h += '<option value="' + key + '"' + (YMS.state.industry === key ? ' selected' : '') + '>' + ind.icon + ' ' + ind.name + '</option>';
+    });
+    h += '</select>';
+    var ind = YMS.INDUSTRIES[YMS.state.industry];
+    h += '<span style="font-size:10px;color:var(--text-muted);margin-left:8px">Units: ' + ind.units + ' | OEMs: ' + ind.oems.join(', ') + '</span>';
+    h += '</div>';
+
+    // Stats
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Yard Spots</div><div class="stat-value">' + spots.length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Occupied</div><div class="stat-value" style="color:var(--blue)">' + occupied + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Empty</div><div class="stat-value" style="color:var(--emerald)">' + (spots.length - occupied) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Gate Activity</div><div class="stat-value" style="color:var(--orange)">' + YMS.state.gateLog.length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Appointments</div><div class="stat-value" style="color:var(--purple)">' + YMS.state.appointments.length + '</div></div>';
+    h += '</div>';
+
+    // Yard map — visual grid
+    h += '<div class="ai-section-header">🗺️ Yard Map — Trailer Spots</div>';
+    h += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius)">';
+    spots.forEach(function(spot) {
+      var bgColor = spot.status === 'empty' ? 'rgba(46,204,113,0.1)' : spot.status === 'loaded' ? 'rgba(52,152,219,0.15)' : spot.status === 'loading' ? 'rgba(243,156,18,0.15)' : 'rgba(231,76,60,0.1)';
+      var borderColor = spot.status === 'empty' ? 'var(--emerald)' : spot.status === 'loaded' ? 'var(--blue)' : spot.status === 'loading' ? 'var(--orange)' : 'var(--red)';
+      h += '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:4px;padding:6px;text-align:center;min-height:50px">';
+      h += '<div style="font-size:9px;font-weight:700;color:var(--text-primary)">' + spot.id + '</div>';
+      if (spot.trailerId) {
+        h += '<div style="font-size:8px;color:var(--text-secondary)">' + spot.trailerId + '</div>';
+        h += '<div style="font-size:7px;color:var(--text-muted)">' + (spot.cargo || '').substring(0,15) + '</div>';
+      } else {
+        h += '<div style="font-size:10px;color:var(--emerald)">Empty</div>';
+      }
+      h += '</div>';
+    });
+    h += '</div>';
+
+    // Gate log
+    h += '<div class="ai-section-header">🚪 Gate Check-In/Out Log</div>';
+    h += '<table class="data-table"><thead><tr><th>Time</th><th>Dir</th><th>Driver</th><th>Carrier</th><th>SCAC</th><th>Trailer</th><th>BOL</th><th>Purpose</th><th>Spot</th><th>Status</th></tr></thead><tbody>';
+    YMS.state.gateLog.forEach(function(g) {
+      var dirColor = g.direction === 'in' ? 'var(--emerald)' : 'var(--orange)';
+      h += '<tr>';
+      h += '<td style="font-size:10px">' + g.time + '</td>';
+      h += '<td style="color:' + dirColor + ';font-weight:700">' + (g.direction === 'in' ? '↓ IN' : '↑ OUT') + '</td>';
+      h += '<td>' + g.driver + '</td>';
+      h += '<td style="font-size:10px">' + g.carrier + '</td>';
+      h += '<td class="font-mono">' + g.scac + '</td>';
+      h += '<td>' + g.trailerId + '</td>';
+      h += '<td style="font-size:10px">' + g.bol + '</td>';
+      h += '<td style="font-size:10px">' + g.purpose + '</td>';
+      h += '<td>' + (g.spot || '—') + '</td>';
+      h += '<td style="font-size:10px">' + g.status.replace(/_/g,' ') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Appointments
+    h += '<div class="ai-section-header">📅 Dock Door Appointments</div>';
+    h += '<table class="data-table"><thead><tr><th>Time</th><th>Carrier</th><th>Driver</th><th>Trailer</th><th>Dock</th><th>Type</th><th>BOL</th><th>Status</th></tr></thead><tbody>';
+    YMS.state.appointments.forEach(function(a) {
+      var stColor = a.status === 'completed' ? 'var(--emerald)' : a.status === 'in_progress' ? 'var(--blue)' : 'var(--text-muted)';
+      h += '<tr>';
+      h += '<td style="font-size:10px">' + a.time + '</td>';
+      h += '<td style="font-size:10px">' + a.carrier + '</td>';
+      h += '<td>' + a.driver + '</td>';
+      h += '<td>' + a.trailerId + '</td>';
+      h += '<td>' + a.dockDoor + '</td>';
+      h += '<td style="font-size:10px">' + a.type.replace(/_/g,' ') + '</td>';
+      h += '<td style="font-size:10px">' + a.bol + '</td>';
+      h += '<td style="color:' + stColor + ';font-weight:600">' + a.status.replace(/_/g,' ') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Carrier directory
+    h += '<div class="ai-section-header">🚚 Carrier Directory (SCAC)</div>';
+    h += '<table class="data-table"><thead><tr><th>Carrier</th><th>SCAC</th><th>Type</th><th>DOT #</th><th>MC #</th><th>Insurance</th><th>Status</th></tr></thead><tbody>';
+    YMS.state.carriers.forEach(function(c) {
+      h += '<tr><td><strong>' + c.name + '</strong></td><td class="font-mono">' + c.scac + '</td><td style="font-size:10px">' + c.type + '</td><td>' + c.dot + '</td><td>' + c.mc + '</td><td style="font-size:10px">' + c.insurance + '</td><td style="color:var(--emerald)">' + c.status + '</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function setYMSIndustry(industry) {
+    YMS.state.industry = industry;
+    switchView('yms');
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  CONVEYOR PICK LIST VIEW (Terrabon-style: scan → skid → ship)
+  // ══════════════════════════════════════════════════════════
+
+  function renderConveyor() {
+    var h = '';
+    var pls = YMS.state.pickLists;
+    var stations = YMS.state.conveyorStations;
+    var skids = YMS.state.skids;
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🔄</span> Conveyor Pick-List System — Scan Totes → Build Skids → Ship</div><div class="panel-body">';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">';
+    h += '<strong>Workflow (Terrabon-style):</strong> Pick list generated → Operator scans totes at conveyor station → Items verified against pick list → Completed skid moves on conveyor belt → Staged → Loaded on trailer → Shipped. Ship per skid, not per trailer.';
+    h += '</div>';
+
+    // Conveyor stations
+    h += '<div class="ai-section-header">⚙️ Conveyor Stations</div>';
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(3,1fr);gap:10px">';
+    stations.forEach(function(st) {
+      var stColor = st.status === 'running' ? 'var(--emerald)' : st.status === 'idle' ? 'var(--text-muted)' : 'var(--red)';
+      h += '<div class="stat-card" style="--accent-color:' + stColor + '">';
+      h += '<div class="stat-label">' + st.name + '</div>';
+      h += '<div class="stat-value" style="color:' + stColor + ';font-size:14px">' + st.status + '</div>';
+      h += '<div class="stat-sub">Lane: ' + st.lane + ' | ' + st.itemsPerHour + ' items/hr<br>Operator: ' + st.operator + (st.currentPickList ? '<br>Pick List: ' + st.currentPickList : '') + '</div>';
+      h += '</div>';
+    });
+    h += '</div>';
+
+    // Pick lists
+    h += '<div class="ai-section-header">📋 Pick Lists</div>';
+    pls.forEach(function(pl) {
+      var plColor = pl.status === 'complete' ? 'var(--emerald)' : pl.status === 'in_progress' ? 'var(--blue)' : 'var(--text-muted)';
+      var totalItems = pl.items.length;
+      var scannedItems = pl.items.filter(function(i){return i.status === 'complete';}).length;
+
+      h += '<div class="card" style="margin-bottom:10px">';
+      h += '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center">';
+      h += '<div><strong style="color:var(--purple-light)">' + pl.id + '</strong> — Station: ' + pl.station + ' | Lane: ' + pl.conveyorLane + ' | Target: ' + pl.targetSkid + ' | Dest: ' + pl.destination + '</div>';
+      h += '<div style="color:' + plColor + ';font-weight:600">' + pl.status.replace(/_/g,' ') + ' (' + scannedItems + '/' + totalItems + ' scanned)</div>';
+      h += '</div>';
+      h += '<table class="data-table" style="margin-top:6px"><thead><tr><th>Part #</th><th>Description</th><th>Qty</th><th>Scanned</th><th>Tote</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+      pl.items.forEach(function(item, idx) {
+        var iColor = item.status === 'complete' ? 'var(--emerald)' : item.status === 'in_progress' ? 'var(--blue)' : 'var(--text-muted)';
+        h += '<tr>';
+        h += '<td>' + item.partNumber + '</td>';
+        h += '<td style="font-size:10px">' + item.description + '</td>';
+        h += '<td>' + item.qty + '</td>';
+        h += '<td>' + item.scanned + '</td>';
+        h += '<td class="font-mono" style="font-size:9px">' + item.toteId + '</td>';
+        h += '<td style="color:' + iColor + '">' + item.status + '</td>';
+        h += '<td>';
+        if (item.status !== 'complete' && pl.status === 'in_progress') {
+          h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.scanTote(\'' + pl.id + '\',' + idx + ',\'TOTE-' + Math.floor(Math.random()*999) + '\')">📦 Scan Tote</button>';
+        }
+        h += '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table>';
+      h += '</div>';
+    });
+
+    // Skids
+    h += '<div class="ai-section-header">📦 Skids (Built → Conveyor → Staged → Loaded)</div>';
+    h += '<table class="data-table"><thead><tr><th>Skid ID</th><th>Status</th><th>Pick List</th><th>Lane</th><th>Parts</th><th>Weight</th><th>Destination</th><th>Trailer</th><th>Location</th><th>Action</th></tr></thead><tbody>';
+    skids.forEach(function(s) {
+      var sColor = s.status === 'loaded' ? 'var(--emerald)' : s.status === 'on_conveyor' ? 'var(--blue)' : s.status === 'staged' ? 'var(--orange)' : 'var(--text-muted)';
+      h += '<tr>';
+      h += '<td><strong>' + s.id + '</strong></td>';
+      h += '<td style="color:' + sColor + ';font-weight:600">' + s.status.replace(/_/g,' ') + '</td>';
+      h += '<td>' + s.pickList + '</td>';
+      h += '<td>' + s.lane + '</td>';
+      h += '<td>' + s.partsCount + '</td>';
+      h += '<td>' + s.weight + ' lbs</td>';
+      h += '<td style="font-size:10px">' + s.destination + '</td>';
+      h += '<td>' + (s.trailerId || '—') + '</td>';
+      h += '<td style="font-size:10px">' + s.location + '</td>';
+      h += '<td>';
+      if (s.status === 'staged' || s.status === 'on_conveyor') {
+        h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.loadSkid(\'' + s.id + '\',\'TRL-5789\')">🚚 Load on Trailer</button>';
+      }
+      h += '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function scanTote(plId, itemIdx, toteBarcode) {
+    var result = YMS.scanTote(plId, itemIdx, toteBarcode);
+    if (result.success) {
+      AutoSeq.alert('success', 'Tote Scanned', result.message);
+    } else {
+      AutoSeq.alert('error', 'Scan Failed', result.message);
+    }
+    switchView('conveyor');
+  }
+
+  function loadSkid(skidId, trailerId) {
+    var result = YMS.loadSkidOnTrailer(skidId, trailerId);
+    AutoSeq.alert('success', 'Skid Loaded', result.message);
+    switchView('conveyor');
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  BLUE YONDER WMS VIEW
+  // ══════════════════════════════════════════════════════════
+
+  function renderBlueYonder() {
+    var h = '';
+    var cfg = YMS.state.blueYonderConfig;
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🔵</span> Blue Yonder WMS/TMS Integration</div><div class="panel-body">';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">';
+    h += '<strong>Blue Yonder</strong> (formerly JDA Software) provides enterprise WMS, TMS, and supply chain planning. OwlLogics integrates via Blue Yonder REST API (OAuth2 authentication). Used by automotive (Terrabon), retail (Walmart, Lowe\'s), lumber, and Mexico maquiladora operations.';
+    h += '</div>';
+
+    // Connection status
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Connection</div><div class="stat-value" style="color:' + (cfg.connected ? 'var(--emerald)' : 'var(--red)') + '">' + (cfg.connected ? '✅ Connected' : '❌ Disconnected') + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">API Version</div><div class="stat-value" style="font-size:14px">' + cfg.apiVersion + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Last Sync</div><div class="stat-value" style="font-size:12px">' + (cfg.lastSync ? cfg.lastSync.replace('T',' ').substring(0,16) : 'Never') + '</div></div>';
+    h += '</div>';
+
+    // Config form
+    h += '<div class="ai-section-header">⚙️ Blue Yonder Connection Configuration</div>';
+    h += '<div class="card">';
+    h += '<div class="form-group"><label>Tenant URL</label><input type="text" id="by-tenantUrl" value="' + (cfg.tenantUrl || '') + '" style="font-family:var(--font-mono);font-size:10px"></div>';
+    h += '<div class="form-group"><label>Client ID</label><input type="text" id="by-clientId" placeholder="Your Blue Yonder API client ID"></div>';
+    h += '<div class="form-group"><label>Client Secret</label><input type="password" id="by-clientSecret" placeholder="Your Blue Yonder API secret"></div>';
+    h += '<div class="form-group"><label>OAuth2 Token URL</label><input type="text" id="by-tokenUrl" value="' + (cfg.tokenUrl || '') + '" style="font-family:var(--font-mono);font-size:10px"></div>';
+    h += '<div class="form-group"><label>Scopes</label><input type="text" id="by-scope" value="' + (cfg.scope || '') + '" style="font-size:10px"></div>';
+    h += '<div style="margin-top:10px;display:flex;gap:8px">';
+    h += '<button class="btn btn-emerald btn-sm" onclick="AutoSeqUI.connectBY()">🔗 Connect Blue Yonder</button>';
+    h += '<button class="btn btn-sm" onclick="AutoSeqUI.syncBY()">🔄 Sync Inventory</button>';
+    h += '</div>';
+    h += '</div>';
+
+    // API endpoints reference
+    h += '<div class="ai-section-header">📡 Blue Yonder REST API Endpoints</div>';
+    h += '<pre>WMS Inventory:\n  GET  /wms/v3/inventory/positions     — Get inventory by SKU/location\n  GET  /wms/v3/inventory/items/{sku}    — Get item details\n  POST /wms/v3/inventory/adjustments   — Post inventory adjustment\n\nWMS Tasks:\n  GET  /wms/v3/tasks                   — List active tasks (pick, put, move)\n  POST /wms/v3/tasks                   — Create task (pick, replenish, move)\n  PUT  /wms/v3/tasks/{id}/complete     — Complete task\n\nWMS Labor:\n  GET  /wms/v3/labor/employees         — List employees\n  GET  /wms/v3/labor/productivity      — Labor productivity report\n\nTMS Shipments:\n  GET  /tms/v3/shipments               — List shipments\n  POST /tms/v3/shipments               — Create shipment\n  GET  /tms/v3/shipments/{id}/tracking — Shipment tracking\n\nAuthentication:\n  POST {tokenUrl} (form-encoded)\n    grant_type=client_credentials\n    client_id={clientId}\n    client_secret={clientSecret}\n    scope={scope}\n  Returns: { access_token, expires_in, token_type }</pre>';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">';
+    h += '<strong>Production Integration:</strong> In production, OwlLogics would exchange client credentials for an OAuth2 bearer token, then call Blue Yonder REST endpoints to sync inventory, tasks, and shipments. The integration is bidirectional — OwlLogics can both read from and write to Blue Yonder WMS. For smaller suppliers (Mexico maquiladoras) who can\'t afford Blue Yonder, OwlLogics provides the same pick-list and conveyor functionality for free.';
+    h += '</div>';
+
+    // Multi-industry note
+    h += '<div class="ai-section-header">🏭 Multi-Industry Support</div>';
+    h += '<table class="data-table"><thead><tr><th>Industry</th><th>Typical OEMs</th><th>Units</th><th>OwlLogics Replaces</th></tr></thead><tbody>';
+    Object.keys(YMS.INDUSTRIES).forEach(function(key) {
+      var ind = YMS.INDUSTRIES[key];
+      var replaces = key === 'automotive' ? 'Insequence SPD Pro' : key === 'retail' ? 'Excel spreadsheets' : key === 'mexico' ? 'Excel load sheets' : key === 'lumber' ? 'Manual yard logs' : 'Custom scripts';
+      h += '<tr><td><strong>' + ind.icon + ' ' + ind.name + '</strong></td><td style="font-size:10px">' + ind.oems.join(', ') + '</td><td>' + ind.units + '</td><td style="font-size:10px">' + replaces + '</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    // Skid load builder (replaces Excel for Mexico)
+    h += '<div class="ai-section-header">📦 Skid Load Builder (Replaces Excel Spreadsheets)</div>';
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:8px;line-height:1.5">';
+    h += 'Mexico maquiladora suppliers still use Excel to calculate how many skids fit on a semi truck. OwlLogics replaces that with a visual load builder:';
+    h += '</div>';
+    var demoSkids = [];
+    for (var i = 1; i <= 26; i++) {
+      demoSkids.push({ id:'SKID-' + String(i).padStart(2,'0'), type:'STD_48x40', weight:1200 + Math.floor(Math.random()*800), contents:'Auto Parts Bundle ' + i });
+    }
+    var loadPlan = YMS.buildSkidLoadPlan(demoSkids, '53FT_DRY_VAN');
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">';
+    h += '<div class="stat-card"><div class="stat-label">Skids Loaded</div><div class="stat-value" style="color:var(--emerald)">' + loadPlan.totalSkids + '/' + demoSkids.length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Total Weight</div><div class="stat-value" style="color:' + (loadPlan.totalWeight > 45000 ? 'var(--red)' : 'var(--blue)') + '">' + loadPlan.totalWeight.toLocaleString() + '</div><div class="stat-sub">/ 45,000 lbs</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Weight Util</div><div class="stat-value">' + loadPlan.weightUtilization + '%</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Space Util</div><div class="stat-value">' + loadPlan.spaceUtilization + '%</div></div>';
+    h += '</div>';
+    if (loadPlan.overflow.length > 0) {
+      h += '<div style="padding:8px;background:rgba(231,76,60,0.05);border-radius:var(--radius);border-left:3px solid var(--red);font-size:10px">';
+      h += '⚠️ <strong>' + loadPlan.overflow.length + ' skids overflow</strong> — ' + loadPlan.overflow.length + ' skids don\'t fit (weight or space limit). Need a second trailer or redistribute weight.';
+      h += '</div>';
+    }
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px">Layout: ' + loadPlan.rowsUsed + ' rows × ' + loadPlan.skidsPerRow + ' skids per row (turn pattern 48" side-by-side)</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function connectBY() {
+    var cfg = {
+      tenantUrl: document.getElementById('by-tenantUrl') ? document.getElementById('by-tenantUrl').value : '',
+      clientId: document.getElementById('by-clientId') ? document.getElementById('by-clientId').value : '',
+      clientSecret: document.getElementById('by-clientSecret') ? document.getElementById('by-clientSecret').value : '',
+      tokenUrl: document.getElementById('by-tokenUrl') ? document.getElementById('by-tokenUrl').value : '',
+      scope: document.getElementById('by-scope') ? document.getElementById('by-scope').value : ''
+    };
+    var result = YMS.connectBlueYonder(cfg);
+    AutoSeq.alert('success', 'Blue Yonder', result.message);
+    switchView('blueyonder');
+  }
+
+  function syncBY() {
+    var result = YMS.syncBlueYonderInventory();
+    AutoSeq.alert('success', 'Inventory Synced', result.message + ' — ' + result.items.length + ' items');
+    switchView('blueyonder');
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  FLEET & GPS VIEW
   // ══════════════════════════════════════════════════════════
 
@@ -5868,5 +6324,12 @@ const AutoSeqUI = (function () {
     toggleGPS,
     ckdAdvance,
     downloadBOL,
+    setYMSIndustry,
+    scanTote,
+    loadSkid,
+    connectBY,
+    syncBY,
+    testPrint,
+    downloadPrintConfig,
   };
 })();
