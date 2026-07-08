@@ -1,7 +1,7 @@
 /* ============================================================
    OwlLogics NexGen Owl Mode
-   (c) 2024 OwlLogics Contributors - All Rights Reserved - Patent Pending
-   Contact: contact@owllogics.app
+   (c) 2024 Paul Adcock - All Rights Reserved - Patent Pending
+   Contact: paul.dev.co@outlook.com
    ============================================================
    OwlLogics SAP IDoc Engine
    ============================================================ */

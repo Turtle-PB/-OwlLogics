@@ -1,5 +1,5 @@
 // OwlLogics Service Worker — PWA Offline Support
-// (c) 2024 OwlLogics Contributors — Patent Pending
+// (c) 2024 Paul Adcock — Patent Pending
 
 var CACHE_NAME = 'owllogics-v1.0';
 var ASSETS = [

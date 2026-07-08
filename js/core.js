@@ -1,7 +1,7 @@
 /* ============================================================
    OwlLogics NexGen Owl Mode
    © 2024 OwlLogics Contributors — All Rights Reserved — Patent Pending
-   Contact: contact@owllogics.app
+   Contact: paul.dev.co@outlook.com
    ============================================================
    OwlLogics Core Engine — State, Data, MSQM Simulator
    ============================================================ */

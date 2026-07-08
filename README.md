@@ -157,13 +157,13 @@ Full documentation is built into the app — click **📖 Documentation** in the
 
 **MIT License** — free for personal and commercial use.
 
-Copyright (c) 2024 OwlLogics Contributors
+Copyright (c) 2024 **Paul Adcock** <paul.dev.co@outlook.com> — All Rights Reserved.
 
 ### ⚠️ Patent Rights Reserved
 
-The MIT License grants **copyright license only** — NOT patent license. All patent rights covering the methodologies, systems, and inventions in this software are **expressly reserved** by the copyright holders. See [PATENTS](PATENTS) file for the full patent notice.
+The MIT License grants **copyright license only** — NOT patent license. All patent rights covering the methodologies, systems, and inventions in this software are **expressly reserved by Paul Adcock**. See [PATENTS](PATENTS) file for the full patent notice.
 
-Commercial use of patented methodologies requires a separate patent license agreement.
+Commercial use of patented methodologies requires a separate patent license agreement from Paul Adcock (paul.dev.co@outlook.com).
 
 ---
 

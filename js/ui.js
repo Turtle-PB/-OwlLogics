@@ -1,7 +1,7 @@
 /* ============================================================
    OwlLogics NexGen Owl Mode
    © 2024 OwlLogics Contributors — All Rights Reserved — Patent Pending
-   Contact: contact@owllogics.app
+   Contact: paul.dev.co@outlook.com
    ============================================================
    OwlLogics UI Engine — View Rendering & DOM Management
    ============================================================ */
@@ -376,7 +376,7 @@ const AutoSeqUI = (function () {
           '</div>' +
         '</div>' +
         '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:10px;color:var(--text-muted);text-align:center">' +
-          'OwlLogics NexGen Owl Mode — MIT License (copyright only) | Patent Rights Reserved | Built by OwlLogics Contributors 🦉<br>' +
+          'OwlLogics NexGen Owl Mode — MIT License (copyright only) | Patent Rights Reserved | (c) 2024 Paul Adcock<br>' +
           '<a href="https://www.paypal.com/paypalme/adcockp" target="_blank" style="display:inline-block;margin-top:6px;padding:6px 16px;background:#0070ba;color:white;text-decoration:none;border-radius:5px;font-size:11px;font-weight:600">💖 PayPal</a>' +
           '<a href="https://www.patreon.com/adcockp" target="_blank" style="display:inline-block;margin-top:6px;margin-left:4px;padding:6px 16px;background:#f96854;color:white;text-decoration:none;border-radius:5px;font-size:11px;font-weight:600">🎨 Patreon</a><br>' +
           '<span style="font-size:9px;color:var(--text-muted)">Support OwlLogics development — keep it free and open source</span><br>' +

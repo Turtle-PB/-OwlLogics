@@ -1,14 +1,13 @@
 PATENT NOTICE — OwlLogics NexGen Owl Mode
 
-Copyright (c) 2024 OwlLogics Contributors
-
-All patent rights are hereby RESERVED by the copyright holders.
+Copyright (c) 2024 Paul Adcock <paul.dev.co@outlock.com>
+All Rights Reserved.
 
 While this software is licensed under the MIT License for source code usage,
 modification, and distribution, NO patent license is granted, implied, or
 conferred by the distribution of this software.
 
-Any patent rights covering the methodologies, systems, processes, or
+All patent rights covering the methodologies, systems, processes, or
 inventions implemented in this software — including but not limited to:
 
   - The 3D rack visualization system with poka-yoke validation
@@ -24,17 +23,19 @@ inventions implemented in this software — including but not limited to:
   - The NextGen vs OwlLogics comparison methodology
   - The PWA boot loader with verbose step-by-step dependency verification
 
-remain the exclusive property of the copyright holders.
+remain the exclusive property of Paul Adcock.
 
 Users of this software acknowledge that:
 
 1. The MIT License grants copyright license only — NOT patent license.
 2. Any commercial use of patented methodologies requires a separate patent
-   license agreement from the copyright holders.
-3. The copyright holders retain the right to enforce patent rights against
-   any party that infringes upon the patented methodologies.
+   license agreement from Paul Adcock (paul.dev.co@outlook.com).
+3. Paul Adcock retains the right to enforce patent rights against any party
+   that infringes upon the patented methodologies.
 
-For patent licensing inquiries, contact the copyright holders.
+For patent licensing inquiries, contact:
+  Paul Adcock
+  Email: paul.dev.co@outlook.com
 
 This notice is provided in accordance with 35 U.S.C. § 287(a) to the extent
 applicable, and serves as constructive notice of the patent rights reserved

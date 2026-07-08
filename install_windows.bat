@@ -1,7 +1,7 @@
 @echo off
 REM ============================================================
 REM  OwlLogics NexGen Owl Mode - Windows Installer
-REM  (c) 2024 OwlLogics Contributors - MIT License
+REM  (c) 2024 Paul Adcock - MIT License
 REM ============================================================
 title OwlLogics Installer
 echo.
