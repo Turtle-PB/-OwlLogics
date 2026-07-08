@@ -37,6 +37,7 @@ const AutoSeqUI = (function () {
     'nextgen-compare': { icon: '⚖️', label: 'NextGen vs OwlLogics', render: renderNextGenCompare },
     docs:         { icon: '📖',  label: 'Documentation',       render: renderDocs },
     standards:    { icon: '📐',  label: 'Standards & Compliance', render: renderStandards },
+    fleet:        { icon: '🚛',  label: 'Fleet & GPS',           render: renderFleet },
   };
 
   // ── Init ───────────────────────────────────────────────────
@@ -4925,6 +4926,315 @@ const AutoSeqUI = (function () {
   }
 
   // ══════════════════════════════════════════════════════════
+  //  FLEET & GPS VIEW
+  // ══════════════════════════════════════════════════════════
+
+  var fleetTab = 'gps';
+
+  function renderFleet() {
+    var html = '<div class="panel"><div class="panel-header"><span class="panel-icon">🚛</span> Fleet Logistics — GPS, BOL, Load Optimization, CKD Retrieval</div><div class="panel-body">';
+
+    html += '<div class="doc-tabs">';
+    html += '<div class="doc-tab' + (fleetTab === 'gps' ? ' active' : '') + '" onclick="AutoSeqUI.setFleetTab(\'gps\')">📍 GPS Tracking</div>';
+    html += '<div class="doc-tab' + (fleetTab === 'bol' ? ' active' : '') + '" onclick="AutoSeqUI.setFleetTab(\'bol\')">📄 BOL Generator</div>';
+    html += '<div class="doc-tab' + (fleetTab === 'load' ? ' active' : '') + '" onclick="AutoSeqUI.setFleetTab(\'load\')">📦 Load Optimizer</div>';
+    html += '<div class="doc-tab' + (fleetTab === 'packaging' ? ' active' : '') + '" onclick="AutoSeqUI.setFleetTab(\'packaging\')">💰 Packaging Cost</div>';
+    html += '<div class="doc-tab' + (fleetTab === 'ckd' ? ' active' : '') + '" onclick="AutoSeqUI.setFleetTab(\'ckd\')">🏭 CKD Retrieval</div>';
+    html += '</div>';
+
+    if (fleetTab === 'gps') html += renderFleetGPS();
+    else if (fleetTab === 'bol') html += renderFleetBOL();
+    else if (fleetTab === 'load') html += renderFleetLoad();
+    else if (fleetTab === 'packaging') html += renderFleetPackaging();
+    else if (fleetTab === 'ckd') html += renderFleetCKD();
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function setFleetTab(tab) {
+    fleetTab = tab;
+    var el = document.getElementById('doc-content');
+    switchView('fleet');
+  }
+
+  function renderFleetGPS() {
+    var h = '';
+    var trailers = FleetLogistics.state.trailers;
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Trailers</div><div class="stat-value">' + trailers.length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">In Transit</div><div class="stat-value" style="color:var(--blue)">' + trailers.filter(function(t){return t.status==='in_transit'}).length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">At Dock</div><div class="stat-value" style="color:var(--emerald)">' + trailers.filter(function(t){return t.status==='at_dock'||t.status==='loading'}).length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Geofences</div><div class="stat-value" style="color:var(--purple)">' + FleetLogistics.state.geofences.length + '</div></div>';
+    h += '</div>';
+
+    // GPS toggle
+    h += '<div style="margin-bottom:10px">';
+    h += '<button class="btn ' + (FleetLogistics.state.gpsTracking ? 'btn-danger' : 'btn-emerald') + ' btn-sm" onclick="AutoSeqUI.toggleGPS()">' + (FleetLogistics.state.gpsTracking ? '⏹ Stop GPS' : '▶ Start GPS') + '</button>';
+    h += '<span style="font-size:10px;color:var(--text-muted);margin-left:8px">';
+    if (FleetLogistics.state.gpsTracking) {
+      h += 'GPS Active — tracking ' + trailers.length + ' trailers';
+      if (FleetLogistics.state.deviceLat) {
+        h += ' | Device: ' + FleetLogistics.state.deviceLat.toFixed(4) + ', ' + FleetLogistics.state.deviceLng.toFixed(4) + ' (±' + Math.round(FleetLogistics.state.deviceAccuracy) + 'm)';
+      }
+    } else {
+      h += 'GPS stopped';
+    }
+    h += '</span>';
+    h += '</div>';
+
+    // Trailer table
+    h += '<table class="data-table"><thead><tr><th>Unit</th><th>Type</th><th>Driver</th><th>Location</th><th>GPS</th><th>Speed</th><th>Destination</th><th>ETA</th><th>Cargo</th><th>Weight</th><th>Status</th></tr></thead><tbody>';
+    trailers.forEach(function(t) {
+      var statusColor = t.status === 'in_transit' ? 'var(--blue)' : t.status === 'arrived' ? 'var(--emerald)' : t.status === 'loading' ? 'var(--yellow)' : 'var(--text-muted)';
+      var weightPct = Math.round((t.weight / t.maxWeight) * 100);
+      h += '<tr>';
+      h += '<td><strong>' + t.unitNumber + '</strong></td>';
+      h += '<td style="font-size:10px">' + t.type + '</td>';
+      h += '<td>' + t.driver + '</td>';
+      h += '<td style="font-size:10px">' + t.currentLocation + '</td>';
+      h += '<td class="font-mono" style="font-size:9px">' + t.lat.toFixed(4) + ', ' + t.lng.toFixed(4) + '</td>';
+      h += '<td>' + (t.speed > 0 ? t.speed + ' mph ' + t.heading : 'Parked') + '</td>';
+      h += '<td style="font-size:10px">' + t.destination + '</td>';
+      h += '<td style="font-size:10px">' + t.eta + '</td>';
+      h += '<td style="font-size:10px">' + t.cargo + '</td>';
+      h += '<td>' + t.weight.toLocaleString() + ' / ' + t.maxWeight.toLocaleString() + ' lbs<br><span style="font-size:8px;color:' + (weightPct > 90 ? 'var(--red)' : 'var(--emerald)') + '">' + weightPct + '%</span></td>';
+      h += '<td style="color:' + statusColor + ';font-weight:600">' + t.status.replace(/_/g,' ') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Geofences
+    h += '<div class="ai-section-header" style="margin-top:14px">📍 Geofences</div>';
+    h += '<table class="data-table"><thead><tr><th>Name</th><th>Type</th><th>Lat, Lng</th><th>Radius</th></tr></thead><tbody>';
+    FleetLogistics.state.geofences.forEach(function(gf) {
+      h += '<tr><td><strong>' + gf.name + '</strong></td><td>' + gf.type.replace(/_/g,' ') + '</td><td class="font-mono" style="font-size:9px">' + gf.lat + ', ' + gf.lng + '</td><td>' + gf.radius + 'm</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
+    h += '<strong>iPad GPS:</strong> OwlLogics uses the browser Geolocation API (navigator.geolocation.watchPosition) — works on iPad, iPhone, Android tablets, and any device with GPS. Enable "Share Location" when prompted. High-accuracy mode uses GPS + WiFi + cellular for best positioning.<br>';
+    h += '<strong>Geofencing:</strong> Trailers are automatically checked against geofences. Entering an OEM plant geofence auto-sets status to "arrived". Port geofences set "at_port". Warehouse geofences set "at_dock".';
+    h += '</div>';
+
+    return h;
+  }
+
+  function renderFleetBOL() {
+    var h = '';
+    var bol = FleetLogistics.generateBOL([
+      { name: 'Stamping → Welding', partCount: 45, weight: 4500, description: 'Front Bumpers (Sequenced)', packagingType: 'Rack' },
+      { name: 'Welding -> Paint', partCount: 30, weight: 3200, description: 'Headlamps LH (Sequenced)', packagingType: 'Rack' },
+      { name: 'Paint -> Assembly', partCount: 50, weight: 6800, description: 'Door Panels (Sequenced)', packagingType: 'Rack' },
+      { name: 'Assembly -> Dock', partCount: 25, weight: 2800, description: 'Grille Assemblies', packagingType: 'Rack' }
+    ], 'TLR-001', 'Mike R.', 'J.B. Hunt');
+
+    h += '<div class="ai-section-header">📄 Bill of Lading — Milk Run</div>';
+    h += '<div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-size:11px;line-height:1.7">';
+    h += '<div style="display:flex;justify-content:space-between;flex-wrap:wrap">';
+    h += '<div><strong style="font-size:14px;color:var(--purple-light)">BILL OF LADING</strong><br>BOL #: <strong>' + bol.bolNumber + '</strong><br>Date: ' + bol.date + '</div>';
+    h += '<div><strong>Carrier:</strong> ' + bol.carrier + '<br><strong>Trailer:</strong> ' + bol.trailerId + '<br><strong>Driver:</strong> ' + bol.driver + '</div>';
+    h += '</div>';
+    h += '<hr style="border-color:var(--border);margin:10px 0">';
+    h += '<div style="display:flex;justify-content:space-between;flex-wrap:wrap">';
+    h += '<div><strong>Shipper:</strong><br>' + bol.shipper.name + '<br>' + bol.shipper.address + '<br>' + bol.shipper.city + ', ' + bol.shipper.state + ' ' + bol.shipper.zip + '</div>';
+    h += '<div><strong>Consignee:</strong><br>' + bol.consignee.name + '<br>' + bol.consignee.address + '<br>' + bol.consignee.city + ', ' + bol.consignee.state + ' ' + bol.consignee.zip + '</div>';
+    h += '</div>';
+    h += '<hr style="border-color:var(--border);margin:10px 0">';
+    h += '<table class="data-table"><thead><tr><th>Stop</th><th>Location</th><th>Description</th><th>Pieces</th><th>Weight</th><th>Pkg</th><th>Class</th></tr></thead><tbody>';
+    bol.lineItems.forEach(function(li) {
+      h += '<tr><td>' + li.stopNumber + '</td><td style="font-size:10px">' + li.stopName + '</td><td style="font-size:10px">' + li.partDescription + '</td><td>' + li.pieces + '</td><td>' + li.weight.toLocaleString() + ' lbs</td><td>' + li.packagingType + '</td><td>' + li.classCode + '</td></tr>';
+    });
+    h += '<tr style="font-weight:700;border-top:2px solid var(--border)"><td colspan="3">TOTALS</td><td>' + bol.totalPieces + '</td><td>' + bol.totalWeight.toLocaleString() + ' lbs</td><td colspan="2"></td></tr>';
+    h += '</tbody></table>';
+    h += '<hr style="border-color:var(--border);margin:10px 0">';
+    h += '<div><strong>Special Instructions:</strong> ' + bol.specialInstructions + '</div>';
+    h += '<div style="margin-top:12px;display:flex;justify-content:space-between;flex-wrap:wrap">';
+    h += '<div>Shipper Signature: ____________________<br>Date/Time: ____________</div>';
+    h += '<div>Driver Signature: ____________________<br>Date/Time: ____________</div>';
+    h += '<div>Consignee Signature: ____________________<br>Date/Time: ____________</div>';
+    h += '</div>';
+    h += '</div>';
+    h += '<button class="btn btn-sm btn-emerald mt-2" onclick="AutoSeqUI.downloadBOL()">📄 Download BOL</button>';
+    return h;
+  }
+
+  function renderFleetLoad() {
+    var h = '';
+    var demoItems = [
+      { name: 'Bumper Rack A', length: 48, width: 48, height: 72, weight: 1800 },
+      { name: 'Bumper Rack B', length: 48, width: 48, height: 72, weight: 1600 },
+      { name: 'Headlamp Rack', length: 48, width: 40, height: 60, weight: 900 },
+      { name: 'Grille Rack', length: 48, width: 36, height: 48, weight: 700 },
+      { name: 'Door Panel Rack', length: 48, width: 48, height: 84, weight: 2200 },
+      { name: 'Fascia Rack', length: 60, width: 48, height: 54, weight: 1400 },
+      { name: 'Seat Rack', length: 48, width: 48, height: 96, weight: 2800 },
+      { name: 'Small Parts Tote', length: 48, width: 40, height: 36, weight: 500 }
+    ];
+    var result = FleetLogistics.optimizeTrailerLoad(demoItems, '53FT_DRY_VAN');
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Weight</div><div class="stat-value" style="color:' + (result.axleCompliance.overall ? 'var(--emerald)' : 'var(--red)') + '">' + result.totalWeight.toLocaleString() + '</div><div class="stat-sub">/ ' + result.dimensions.maxWeight.toLocaleString() + ' lbs (' + result.weightUtilization + '%)</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Cube</div><div class="stat-value" style="color:var(--blue)">' + result.cubeUtilization + '%</div><div class="stat-sub">' + Math.round(result.totalCube) + ' / ' + result.dimensions.maxCube + ' cu ft</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Placed</div><div class="stat-value" style="color:var(--emerald)">' + result.placed.length + '/' + (result.placed.length + result.unplaced.length) + '</div><div class="stat-sub">' + result.unplaced.length + ' unplaced</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">DOT Compliant</div><div class="stat-value" style="color:' + (result.axleCompliance.overall ? 'var(--emerald)' : 'var(--red)') + '">' + (result.axleCompliance.overall ? '✅' : '❌') + '</div><div class="stat-sub">80,000 lb gross limit</div></div>';
+    h += '</div>';
+
+    // Axle compliance
+    h += '<div class="ai-section-header">⚖️ DOT Axle Weight Compliance</div>';
+    var ax = result.axleCompliance;
+    h += '<table class="data-table"><thead><tr><th>Axle</th><th>Weight</th><th>Limit</th><th>Status</th></tr></thead><tbody>';
+    h += '<tr><td>Steer</td><td>' + ax.steerAxle.weight.toLocaleString() + ' lbs</td><td>' + ax.steerAxle.limit.toLocaleString() + ' lbs</td><td>' + (ax.steerAxle.compliant ? '✅' : '❌') + '</td></tr>';
+    h += '<tr><td>Drive (tandem)</td><td>' + ax.driveAxle.weight.toLocaleString() + ' lbs</td><td>' + ax.driveAxle.limit.toLocaleString() + ' lbs</td><td>' + (ax.driveAxle.compliant ? '✅' : '❌') + '</td></tr>';
+    h += '<tr><td>Trailer (tandem)</td><td>' + ax.trailerAxle.weight.toLocaleString() + ' lbs</td><td>' + ax.trailerAxle.limit.toLocaleString() + ' lbs</td><td>' + (ax.trailerAxle.compliant ? '✅' : '❌') + '</td></tr>';
+    h += '<tr style="font-weight:700"><td>Gross</td><td>' + ax.grossWeight.weight.toLocaleString() + ' lbs</td><td>' + ax.grossWeight.limit.toLocaleString() + ' lbs</td><td>' + (ax.grossWeight.compliant ? '✅' : '❌') + '</td></tr>';
+    h += '</tbody></table>';
+    if (ax.violations.length > 0) {
+      h += '<div style="margin-top:6px;padding:8px;background:rgba(231,76,60,0.05);border-radius:var(--radius);border-left:3px solid var(--red);font-size:10px">';
+      ax.violations.forEach(function(v) { h += '❌ ' + v + '<br>'; });
+      h += '</div>';
+    }
+
+    // Placed items
+    h += '<div class="ai-section-header">📦 Load Plan — Items Placed in Trailer</div>';
+    h += '<table class="data-table"><thead><tr><th>Item</th><th>Position</th><th>W×L×H</th><th>Weight</th><th>Cube</th></tr></thead><tbody>';
+    result.placed.forEach(function(p) {
+      h += '<tr><td><strong>' + p.name + '</strong></td><td style="font-size:10px">' + p.position + '</td><td class="font-mono" style="font-size:9px">' + p.width + '×' + p.length + '×' + p.height + '"</td><td>' + p.weight + ' lbs</td><td>' + Math.round(p.cube) + ' cu ft</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    // Dunnage plan
+    h += '<div class="ai-section-header">🛡️ Dunnage & Securement Plan</div>';
+    h += '<table class="data-table"><thead><tr><th>Material</th><th>Qty</th><th>Unit Cost</th><th>Total</th><th>Purpose</th></tr></thead><tbody>';
+    result.dunnage.items.forEach(function(d) {
+      h += '<tr><td>' + d.type + '</td><td>' + d.quantity + '</td><td>$' + d.unitCost.toFixed(2) + '</td><td>$' + d.totalCost.toFixed(2) + '</td><td style="font-size:10px">' + d.purpose + '</td></tr>';
+    });
+    h += '<tr style="font-weight:700"><td colspan="3">TOTAL DUNNAGE COST</td><td>$' + result.dunnage.totalCost.toFixed(2) + '</td><td></td></tr>';
+    h += '</tbody></table>';
+
+    return h;
+  }
+
+  function renderFleetPackaging() {
+    var h = '';
+    var demoPlan = [
+      { materialType: 'BUBBLE_WRAP', quantity: 3, purpose: 'Wrap fragile fascias' },
+      { materialType: 'STRETCH_WRAP', quantity: 2, purpose: 'Secure pallets' },
+      { materialType: 'CORRUGATED_BOX', quantity: 24, purpose: 'Individual part boxes' },
+      { materialType: 'WOOD_PALLET', quantity: 4, purpose: 'Base pallets' },
+      { materialType: 'DUNNAGE_BAG', quantity: 6, purpose: 'Void fill in trailer' },
+      { materialType: 'EDGE_BOARD', quantity: 16, purpose: 'Strap protection' },
+      { materialType: 'PACKING_TAPE', quantity: 2, purpose: 'Box sealing' },
+      { materialType: 'LABEL_STOCK', quantity: 48, purpose: 'Shipping labels' }
+    ];
+    var cost = FleetLogistics.calculatePackagingCost(demoPlan);
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Total Cost</div><div class="stat-value" style="color:var(--red)">$' + cost.totalCost.toFixed(2) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Material Types</div><div class="stat-value">' + cost.totalItems + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Cost/Package</div><div class="stat-value" style="color:var(--orange)">$' + (cost.totalCost / 24).toFixed(2) + '</div><div class="stat-sub">24 packages</div></div>';
+    h += '</div>';
+
+    h += '<div class="ai-section-header">💰 Packaging Cost Breakdown</div>';
+    h += '<table class="data-table"><thead><tr><th>Material</th><th>Name</th><th>Qty</th><th>Unit</th><th>Unit Cost</th><th>Total</th><th>Purpose</th></tr></thead><tbody>';
+    cost.lineItems.forEach(function(li) {
+      h += '<tr><td><strong>' + li.material + '</strong></td><td style="font-size:10px">' + li.name + '</td><td>' + li.quantity + '</td><td style="font-size:10px">' + li.unit + '</td><td>$' + li.unitCost.toFixed(2) + '</td><td>$' + li.totalCost.toFixed(2) + '</td><td style="font-size:10px">' + li.purpose + '</td></tr>';
+    });
+    h += '<tr style="font-weight:700;border-top:2px solid var(--border)"><td colspan="5">TOTAL</td><td>$' + cost.totalCost.toFixed(2) + '</td><td></td></tr>';
+    h += '</tbody></table>';
+
+    // Available materials reference
+    h += '<div class="ai-section-header">📋 Available Packaging Materials</div>';
+    h += '<table class="data-table"><thead><tr><th>Code</th><th>Name</th><th>Unit Cost</th><th>Unit</th></tr></thead><tbody>';
+    Object.keys(FleetLogistics.PACKAGING_MATERIALS).forEach(function(key) {
+      var m = FleetLogistics.PACKAGING_MATERIALS[key];
+      h += '<tr><td class="font-mono"><strong>' + key + '</strong></td><td>' + m.name + '</td><td>$' + m.unitCost.toFixed(2) + '</td><td>' + m.unit + '</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    return h;
+  }
+
+  function renderFleetCKD() {
+    var h = '';
+    var retrievals = FleetLogistics.state.ckdRetrievals;
+    var stats = FleetLogistics.getCKDRetrievalStats();
+
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">' + stats.total + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Scanned</div><div class="stat-value" style="color:var(--blue)">' + stats.scanned + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">At POD</div><div class="stat-value" style="color:var(--yellow)">' + stats.at_pod + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Packaged</div><div class="stat-value" style="color:var(--orange)">' + stats.packaged + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Shipped</div><div class="stat-value" style="color:var(--emerald)">' + stats.shipped + '</div></div>';
+    h += '</div>';
+
+    h += '<div class="ai-section-header">🏭 CKD Warehouse Retrieval — Scan → Pick → POD → Package → Ship</div>';
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">';
+    h += '<strong>Workflow:</strong> Operator scans part in warehouse → retrieves from storage location → delivers to POD (Point of Dispensing) packaging station → packages with bubble wrap/crating → ships. This is different from sequencing (which delivers to line-side in build order). CKD retrieval is warehouse-to-packaging for export.';
+    h += '</div>';
+
+    h += '<table class="data-table"><thead><tr><th>ID</th><th>Kit</th><th>Status</th><th>Warehouse Loc</th><th>Part #</th><th>Description</th><th>Qty</th><th>POD</th><th>Pkg Type</th><th>Weight</th><th>Dest</th><th>Actions</th></tr></thead><tbody>';
+    retrievals.forEach(function(r) {
+      var statusColor = r.status === 'scanned' ? 'var(--blue)' : r.status === 'at_pod' ? 'var(--yellow)' : r.status === 'packaged' ? 'var(--orange)' : r.status === 'shipped' ? 'var(--emerald)' : 'var(--text-muted)';
+      h += '<tr>';
+      h += '<td><strong>' + r.id + '</strong></td>';
+      h += '<td>' + r.kitId + '</td>';
+      h += '<td style="color:' + statusColor + ';font-weight:600">' + r.status.replace(/_/g,' ') + '</td>';
+      h += '<td class="font-mono" style="font-size:9px">' + r.warehouseLocation + '</td>';
+      h += '<td>' + r.partNumber + '</td>';
+      h += '<td style="font-size:10px">' + r.description + '</td>';
+      h += '<td>' + r.quantity + '</td>';
+      h += '<td>' + (r.podLocation || '—') + '</td>';
+      h += '<td style="font-size:10px">' + (r.packageType || '—') + '</td>';
+      h += '<td>' + (r.weight > 0 ? r.weight + ' lbs' : '—') + '</td>';
+      h += '<td>' + (r.destination || '—') + '</td>';
+      h += '<td>';
+      if (r.status === 'scanned') h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.ckdAdvance(\'' + r.id + '\',\'deliver_to_pod\')">→ POD</button>';
+      if (r.status === 'at_pod') h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.ckdAdvance(\'' + r.id + '\',\'package\')">📦 Package</button>';
+      if (r.status === 'packaged') h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.ckdAdvance(\'' + r.id + '\',\'ship\')">🚢 Ship</button>';
+      h += '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
+    h += '<strong>CKD Retrieval vs Sequencing:</strong><br>';
+    h += '• <strong>Sequencing</strong> = parts delivered to assembly line in vehicle build order (JIS)<br>';
+    h += '• <strong>CKD Retrieval</strong> = parts retrieved from warehouse storage, packaged for export, shipped to overseas plant<br>';
+    h += '• CKD parts need bubble wrap, export crating (ISPM-15), HS codes, and customs documentation<br>';
+    h += '• POD (Point of Dispensing) is the packaging station where parts are wrapped, crated, and labeled for export';
+    h += '</div>';
+
+    return h;
+  }
+
+  function toggleGPS() {
+    if (FleetLogistics.state.gpsTracking) FleetLogistics.stopGPSTracking();
+    else FleetLogistics.startGPSTracking();
+    switchView('fleet');
+  }
+
+  function ckdAdvance(id, step) {
+    FleetLogistics.advanceCKDRetrieval(id, step);
+    switchView('fleet');
+  }
+
+  function downloadBOL() {
+    var bol = FleetLogistics.generateBOL([
+      { name: 'Stop 1', partCount: 45, weight: 4500, description: 'Front Bumpers' },
+      { name: 'Stop 2', partCount: 30, weight: 3200, description: 'Headlamps' }
+    ], 'TLR-001', 'Mike R.', 'J.B. Hunt');
+    var text = 'BILL OF LADING\nBOL #' + bol.bolNumber + '\nDate: ' + bol.date + '\nCarrier: ' + bol.carrier + '\nTrailer: ' + bol.trailerId + '\nDriver: ' + bol.driver + '\n\nShipper: ' + bol.shipper.name + ', ' + bol.shipper.city + ', ' + bol.shipper.state + '\nConsignee: ' + bol.consignee.name + ', ' + bol.consignee.city + ', ' + bol.consignee.state + '\n\n';
+    bol.lineItems.forEach(function(li) {
+      text += li.stopNumber + '. ' + li.stopName + ' — ' + li.partDescription + ' — ' + li.pieces + ' pcs — ' + li.weight + ' lbs — ' + li.packagingType + '\n';
+    });
+    text += '\nTOTAL: ' + bol.totalPieces + ' pieces — ' + bol.totalWeight + ' lbs\n\nSpecial: ' + bol.specialInstructions + '\n\nShipper: __________  Driver: __________  Consignee: __________';
+    downloadFile(text, bol.bolNumber + '.txt', 'text/plain');
+    AutoSeq.alert('success', 'BOL Downloaded', bol.bolNumber);
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  STANDARDS & COMPLIANCE VIEW
   // ══════════════════════════════════════════════════════════
 
@@ -5448,5 +5758,9 @@ const AutoSeqUI = (function () {
     setDocTab,
     toggleMobileSidebar,
     closeMobileSidebar,
+    setFleetTab,
+    toggleGPS,
+    ckdAdvance,
+    downloadBOL,
   };
 })();

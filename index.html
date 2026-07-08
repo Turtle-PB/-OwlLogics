@@ -158,6 +158,7 @@
   <script src="js/metrics.js"></script>
   <script src="js/logistics.js"></script>
   <script src="js/standards.js"></script>
+  <script src="js/fleet-logistics.js"></script>
   <script>
     // ── Verbose Boot Loader ───────────────────────────────────
     const BootLoader = (function () {
@@ -240,7 +241,8 @@
               typeof OwlAI !== 'undefined' &&
               typeof MetricsDashboard !== 'undefined' &&
               typeof Logistics !== 'undefined' &&
-              typeof Standards !== 'undefined') {
+              typeof Standards !== 'undefined' &&
+              typeof FleetLogistics !== 'undefined') {
             resolve();
           } else {
             setTimeout(check, 20);
@@ -258,7 +260,7 @@
       // Step 0: Verify scripts loaded
       await BootLoader.step('📚', 'Verifying script dependencies', async function() {
         await waitForScripts();
-        return 'core.js, protocols.js, labels.js, ui.js, flvisual.js, sap-forklift.js, sap-idoc.js, owl-ai.js, metrics.js, logistics.js, standards.js loaded';
+        return '13 JS modules loaded';
       });
 
       // Step 1: Load core data
@@ -280,7 +282,9 @@
       await BootLoader.step('📋', 'Initializing commodity & item masters', async function() {
         AutoSeq.initMasterData();
         Logistics.init();
-        return AutoSeq.state.commodities.length + ' commodities, ' + AutoSeq.state.items.length + ' items, ' + Logistics.getLogisticsStats().packages + ' packages';
+        FleetLogistics.initGPS();
+        FleetLogistics.initCKDRetrieval();
+        return AutoSeq.state.commodities.length + ' commodities, ' + Logistics.getLogisticsStats().packages + ' packages, ' + FleetLogistics.state.trailers.length + ' trailers';
       });
 
       // Step 4: Initialize barcode scanner
