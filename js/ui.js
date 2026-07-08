@@ -3039,23 +3039,37 @@ const AutoSeqUI = (function () {
       html += '<div class="stat-card"><div class="stat-label">Error Scans</div><div class="stat-value" style="color:var(--red)">' + scanReport.totalErr + '</div></div>';
       html += '</div>';
 
+      // Labor cost section
+      var lc = scanReport.laborCost;
+      html += '<div class="ai-section-header">💰 Labor Cost Analysis — Wage-Based Error Cost Tracking</div>';
+      html += '<div class="dashboard-grid" style="grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px">';
+      html += '<div class="stat-card" style="--accent-color:var(--red)"><div class="stat-label">Total Labor Cost</div><div class="stat-value" style="color:var(--red)">$' + lc.totalCost.toFixed(2) + '</div><div class="stat-sub">' + lc.totalHours + ' hrs scanned</div></div>';
+      html += '<div class="stat-card" style="--accent-color:var(--emerald)"><div class="stat-label">Productive Cost</div><div class="stat-value" style="color:var(--emerald)">$' + lc.okCost.toFixed(2) + '</div><div class="stat-sub">OK scans only</div></div>';
+      html += '<div class="stat-card" style="--accent-color:var(--orange)"><div class="stat-label">Wasted on Errors</div><div class="stat-value" style="color:var(--orange)">$' + lc.errorCost.toFixed(2) + '</div><div class="stat-sub">' + scanReport.totalErr + ' error scans</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">Cost Per Scan</div><div class="stat-value" style="font-size:16px">$' + lc.costPerScan.toFixed(2) + '</div><div class="stat-sub">all scans</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">Cost Per Error</div><div class="stat-value" style="font-size:16px;color:var(--red)">$' + lc.costPerError.toFixed(2) + '</div><div class="stat-sub">per wrong scan</div></div>';
+      html += '</div>';
+      html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">';
+      html += '<strong>How it works:</strong> Each scan has a duration (seconds). Duration × state wage rate = labor cost for that scan. Error scans are wasted labor — the operator was paid for that time but the scan was wrong. This shows management exactly how much money is lost to scanning errors. Wage rates: CA $20/hr, ON/QC $17.50/hr, MI $10.33/hr, IL $14/hr, OH $10.45/hr, IN $7.25/hr, MX $3.50/hr. States with higher wages lose more money per error.';
+      html += '</div>';
+
       // By operator
-      html += '<div class="ai-section-header">👤 Scan Time by Operator</div>';
-      html += '<table class="data-table"><thead><tr><th>Operator</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time/Scan</th><th>Total Time</th></tr></thead><tbody>';
+      html += '<div class="ai-section-header">👤 Scan Time & Labor Cost by Operator</div>';
+      html += '<table class="data-table"><thead><tr><th>Operator</th><th>State</th><th>Wage</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time</th><th>Total Time</th><th>Labor Cost</th><th>OK Cost</th><th>Error Cost</th><th>Cost/Scan</th></tr></thead><tbody>';
       scanReport.byOperator.forEach(function(o) {
         var errPct = o.scans > 0 ? Math.round(o.err / o.scans * 1000) / 10 : 0;
         var errColor = errPct > 5 ? 'var(--red)' : 'var(--text-primary)';
-        html += '<tr><td><strong>' + o.name + '</strong></td><td>' + o.scans + '</td><td style="color:var(--emerald)">' + o.ok + '</td><td style="color:var(--red)">' + o.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + o.avgTime + 's</td><td>' + Math.round(o.totalTime) + 's</td></tr>';
+        html += '<tr><td><strong>' + o.name + '</strong></td><td>' + (o.stateCode || 'MI') + '</td><td>$' + (o.wageRate || 10.33).toFixed(2) + '/hr</td><td>' + o.scans + '</td><td style="color:var(--emerald)">' + o.ok + '</td><td style="color:var(--red)">' + o.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + o.avgTime + 's</td><td>' + Math.round(o.totalTime) + 's</td><td style="font-weight:600">$' + o.totalLaborCost.toFixed(2) + '</td><td style="color:var(--emerald)">$' + o.okCost.toFixed(2) + '</td><td style="color:var(--red)">$' + o.errorCost.toFixed(2) + '</td><td>$' + o.costPerScan.toFixed(2) + '</td></tr>';
       });
       html += '</tbody></table>';
 
       // By station
-      html += '<div class="ai-section-header">🖥️ Scan Time by Station (View)</div>';
-      html += '<table class="data-table"><thead><tr><th>Station</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time/Scan</th></tr></thead><tbody>';
+      html += '<div class="ai-section-header">🖥️ Scan Time & Error Cost by Station (View)</div>';
+      html += '<table class="data-table"><thead><tr><th>Station</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time</th><th>Error Cost</th></tr></thead><tbody>';
       scanReport.byStation.forEach(function(s) {
         var errPct = s.scans > 0 ? Math.round(s.err / s.scans * 1000) / 10 : 0;
         var errColor = errPct > 5 ? 'var(--red)' : 'var(--text-primary)';
-        html += '<tr><td><strong>' + s.name.replace(/_/g,' ') + '</strong></td><td>' + s.scans + '</td><td style="color:var(--emerald)">' + s.ok + '</td><td style="color:var(--red)">' + s.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + s.avgTime + 's</td></tr>';
+        html += '<tr><td><strong>' + s.name.replace(/_/g,' ') + '</strong></td><td>' + s.scans + '</td><td style="color:var(--emerald)">' + s.ok + '</td><td style="color:var(--red)">' + s.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + s.avgTime + 's</td><td style="color:var(--red)">$' + (s.errorCost || 0).toFixed(2) + '</td></tr>';
       });
       html += '</tbody></table>';
 
@@ -5140,24 +5154,25 @@ const AutoSeqUI = (function () {
   function downloadScanReport() {
     var r = AutoSeq.getScanTimeReport();
     if (r.totalScans === 0) { AutoSeq.alert('warning', 'No Data', 'No scans to report'); return; }
-    var csv = 'Operator,Scans,OK,Errors,ErrorPct,AvgTimeSec,TotalTimeSec\n';
+    var csv = 'Operator,State,WageRate,Scans,OK,Errors,ErrorPct,AvgTimeSec,TotalTimeSec,TotalLaborCost,OKCost,ErrorCost,CostPerScan\n';
     r.byOperator.forEach(function(o) {
       var errPct = o.scans > 0 ? Math.round(o.err / o.scans * 1000) / 10 : 0;
-      csv += o.name + ',' + o.scans + ',' + o.ok + ',' + o.err + ',' + errPct + ',' + o.avgTime + ',' + Math.round(o.totalTime) + '\n';
+      csv += o.name + ',' + (o.stateCode||'MI') + ',' + (o.wageRate||10.33) + ',' + o.scans + ',' + o.ok + ',' + o.err + ',' + errPct + ',' + o.avgTime + ',' + Math.round(o.totalTime) + ',' + o.totalLaborCost.toFixed(2) + ',' + o.okCost.toFixed(2) + ',' + o.errorCost.toFixed(2) + ',' + o.costPerScan.toFixed(2) + '\n';
     });
-    csv += '\nStation,Scans,OK,Errors,ErrorPct,AvgTimeSec\n';
+    csv += '\nStation,Scans,OK,Errors,ErrorPct,AvgTimeSec,ErrorCost\n';
     r.byStation.forEach(function(s) {
       var errPct = s.scans > 0 ? Math.round(s.err / s.scans * 1000) / 10 : 0;
-      csv += s.name + ',' + s.scans + ',' + s.ok + ',' + s.err + ',' + errPct + ',' + s.avgTime + '\n';
+      csv += s.name + ',' + s.scans + ',' + s.ok + ',' + s.err + ',' + errPct + ',' + s.avgTime + ',' + (s.errorCost||0).toFixed(2) + '\n';
     });
-    csv += '\nHour,Scans,OK,Errors,ErrorPct,AvgTimeSec\n';
+    csv += '\nHour,Scans,OK,Errors,ErrorPct,AvgTimeSec,ErrorCost\n';
     r.hourly.forEach(function(h) {
       var errPct = h.scans > 0 ? Math.round(h.err / h.scans * 1000) / 10 : 0;
-      csv += h.hour + ',' + h.scans + ',' + h.ok + ',' + h.err + ',' + errPct + ',' + h.avgTime + '\n';
+      csv += h.hour + ',' + h.scans + ',' + h.ok + ',' + h.err + ',' + errPct + ',' + h.avgTime + ',' + (h.errorCost||0).toFixed(2) + '\n';
     });
-    csv += '\nSummary\nTotal Scans,' + r.totalScans + '\nOK Scans,' + r.totalOk + '\nError Scans,' + r.totalErr + '\nError Rate,' + r.errorRate + '%\nAvg Scan Time,' + r.avgScanTime + 's\n';
-    downloadFile(csv, 'scan-time-report.csv', 'text/csv');
-    AutoSeq.alert('success', 'Downloaded', 'Scan time report CSV saved');
+    var lc = r.laborCost;
+    csv += '\nSummary\nTotal Scans,' + r.totalScans + '\nOK Scans,' + r.totalOk + '\nError Scans,' + r.totalErr + '\nError Rate,' + r.errorRate + '%\nAvg Scan Time,' + r.avgScanTime + 's\nTotal Hours,' + lc.totalHours + '\nTotal Labor Cost,$' + lc.totalCost.toFixed(2) + '\nProductive Cost,$' + lc.okCost.toFixed(2) + '\nWasted on Errors,$' + lc.errorCost.toFixed(2) + '\nCost Per Scan,$' + lc.costPerScan.toFixed(2) + '\nCost Per Error,$' + lc.costPerError.toFixed(2) + '\n';
+    downloadFile(csv, 'scan-time-labor-report.csv', 'text/csv');
+    AutoSeq.alert('success', 'Downloaded', 'Scan time + labor cost report CSV saved');
   }
 
   // ══════════════════════════════════════════════════════════

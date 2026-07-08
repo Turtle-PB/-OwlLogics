@@ -878,51 +878,105 @@ const AutoSeq = (function () {
 
   function getScanTimeReport() {
     var log = state.scanLog;
-    if (!log.length) return { totalScans: 0, totalOk: 0, totalErr: 0, avgScanTime: 0, errorRate: 0, byOperator: [], byStation: [], hourly: [], recentScans: [] };
+    if (!log.length) return { totalScans: 0, totalOk: 0, totalErr: 0, avgScanTime: 0, errorRate: 0, byOperator: [], byStation: [], hourly: [], recentScans: [], laborCost: { totalCost: 0, errorCost: 0, okCost: 0, costPerScan: 0, costPerError: 0, wageRate: 0, totalHours: 0 } };
 
     var totalDuration = 0;
     var byOperator = {};
     var byStation = {};
     var hourly = {};
 
+    // Labor cost tracking
+    var LABOR_WAGE_RATES = {
+      'CA': 20.00,    // California $20/hr (2024)
+      'ON': 17.50,    // Ontario, Canada (C$17.50/hr — laval/Quebec similar)
+      'QC': 17.50,    // Quebec/Laval, Canada
+      'MI': 10.33,    // Michigan $10.33/hr
+      'OH': 10.45,    // Ohio $10.45/hr
+      'IN': 7.25,     // Indiana $7.25/hr (federal min)
+      'WI': 7.25,     // Wisconsin $7.25/hr
+      'IL': 14.00,    // Illinois $14.00/hr
+      'MO': 12.00,    // Missouri $12.00/hr
+      'PA': 7.25,     // Pennsylvania $7.25/hr
+      'TX': 7.25,     // Texas $7.25/hr
+      'TN': 7.25,     // Tennessee $7.25/hr
+      'MX': 3.50,     // Mexico maquiladora ~$3.50/hr
+      'FEDERAL': 7.25 // US federal minimum
+    };
+
     log.forEach(function(s) {
       var dur = s.duration || 1;
       totalDuration += dur;
 
       var op = s.operator || 'Unknown';
-      if (!byOperator[op]) byOperator[op] = { name: op, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      var stateCode = s.stateCode || s.jurisdiction || 'MI';
+      var wageRate = LABOR_WAGE_RATES[stateCode] || LABOR_WAGE_RATES['MI'];
+      var scanCost = (dur / 3600) * wageRate;
+
+      if (!byOperator[op]) byOperator[op] = { name: op, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0, stateCode: stateCode, wageRate: wageRate, totalLaborCost: 0, errorCost: 0, okCost: 0, costPerScan: 0 };
       byOperator[op].scans++;
       byOperator[op].totalTime += dur;
-      if (s.result === 'ok') byOperator[op].ok++;
-      if (s.result === 'err') byOperator[op].err++;
+      byOperator[op].totalLaborCost += scanCost;
+      if (s.result === 'ok') {
+        byOperator[op].ok++;
+        byOperator[op].okCost += scanCost;
+      }
+      if (s.result === 'err') {
+        byOperator[op].err++;
+        byOperator[op].errorCost += scanCost;
+      }
 
       var st = s.station || 'Unknown';
-      if (!byStation[st]) byStation[st] = { name: st, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      if (!byStation[st]) byStation[st] = { name: st, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0, errorCost: 0 };
       byStation[st].scans++;
       byStation[st].totalTime += dur;
       if (s.result === 'ok') byStation[st].ok++;
-      if (s.result === 'err') byStation[st].err++;
+      if (s.result === 'err') {
+        byStation[st].err++;
+        byStation[st].errorCost += scanCost;
+      }
 
       var hr = s.time ? new Date(s.time).getHours() : 0;
       var key = hr + ':00';
-      if (!hourly[key]) hourly[key] = { hour: key, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      if (!hourly[key]) hourly[key] = { hour: key, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0, errorCost: 0 };
       hourly[key].scans++;
       hourly[key].totalTime += dur;
       if (s.result === 'ok') hourly[key].ok++;
-      if (s.result === 'err') hourly[key].err++;
+      if (s.result === 'err') {
+        hourly[key].err++;
+        hourly[key].errorCost += scanCost;
+      }
     });
 
     var operatorArr = Object.values(byOperator);
-    operatorArr.forEach(function(o) { o.avgTime = o.scans > 0 ? Math.round(o.totalTime / o.scans * 10) / 10 : 0; });
+    operatorArr.forEach(function(o) {
+      o.avgTime = o.scans > 0 ? Math.round(o.totalTime / o.scans * 10) / 10 : 0;
+      o.costPerScan = o.scans > 0 ? Math.round(o.totalLaborCost / o.scans * 100) / 100 : 0;
+      o.totalLaborCost = Math.round(o.totalLaborCost * 100) / 100;
+      o.errorCost = Math.round(o.errorCost * 100) / 100;
+      o.okCost = Math.round(o.okCost * 100) / 100;
+    });
     operatorArr.sort(function(a,b) { return b.scans - a.scans; });
 
     var stationArr = Object.values(byStation);
-    stationArr.forEach(function(st) { st.avgTime = st.scans > 0 ? Math.round(st.totalTime / st.scans * 10) / 10 : 0; });
+    stationArr.forEach(function(st) {
+      st.avgTime = st.scans > 0 ? Math.round(st.totalTime / st.scans * 10) / 10 : 0;
+      st.errorCost = Math.round(st.errorCost * 100) / 100;
+    });
     stationArr.sort(function(a,b) { return b.scans - a.scans; });
 
     var hourlyArr = Object.values(hourly);
-    hourlyArr.forEach(function(h) { h.avgTime = h.scans > 0 ? Math.round(h.totalTime / h.scans * 10) / 10 : 0; });
+    hourlyArr.forEach(function(h) {
+      h.avgTime = h.scans > 0 ? Math.round(h.totalTime / h.scans * 10) / 10 : 0;
+      h.errorCost = Math.round(h.errorCost * 100) / 100;
+    });
     hourlyArr.sort(function(a,b) { return a.hour.localeCompare(b.hour); });
+
+    // Calculate total labor cost
+    var totalHours = totalDuration / 3600;
+    var defaultWage = LABOR_WAGE_RATES['MI'];
+    var totalCost = 0;
+    var totalErrorCost = 0;
+    operatorArr.forEach(function(o) { totalCost += o.totalLaborCost; totalErrorCost += o.errorCost; });
 
     return {
       totalScans: log.length,
@@ -933,7 +987,16 @@ const AutoSeq = (function () {
       byOperator: operatorArr,
       byStation: stationArr,
       hourly: hourlyArr,
-      recentScans: log.slice(0, 20)
+      recentScans: log.slice(0, 20),
+      laborCost: {
+        totalCost: Math.round(totalCost * 100) / 100,
+        errorCost: Math.round(totalErrorCost * 100) / 100,
+        okCost: Math.round((totalCost - totalErrorCost) * 100) / 100,
+        costPerScan: log.length > 0 ? Math.round(totalCost / log.length * 100) / 100 : 0,
+        costPerError: log.filter(function(s){return s.result==='err';}).length > 0 ? Math.round(totalErrorCost / log.filter(function(s){return s.result==='err';}).length * 100) / 100 : 0,
+        wageRates: LABOR_WAGE_RATES,
+        totalHours: Math.round(totalHours * 10000) / 10000
+      }
     };
   }
 
