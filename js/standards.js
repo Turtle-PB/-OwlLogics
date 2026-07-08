@@ -105,6 +105,116 @@ var Standards = (function () {
       ackRequired: true,
       demandType: 'sequence',
       description: 'Harley-Davidson uses SAP ERP for JIT manufacturing. Sequencing demand arrives via SAP IDoc ORDERS05 from their SAP system at York PA and Kansas City MO plants.'
+    },
+    FORD_SQL: {
+      name: 'Ford SQL Server Broadcast',
+      oem: 'Ford Motor Co',
+      format: 'SQL Server file push',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT|COLOR|TRIM|ROTATION',
+      transport: 'Windows Server SQL Server → file push',
+      port: 1433,
+      ackRequired: true,
+      demandType: 'broadcast',
+      description: 'Ford Kansas City Assembly Plant uses Windows Server with SQL Server to push sequencing files. The SQL Server database stores the build sequence and pushes formatted files to suppliers via file transfer. Each file contains VIN, sequence number, part number, line, model, plant, color, trim, and rotation number. The rotation number links the vehicle to a specific build day and position. Suppliers poll or receive pushed files and must acknowledge receipt.'
+    },
+    PACCAR: {
+      name: 'PACCAR Lean Production Sequence',
+      oem: 'PACCAR (Kenworth/Peterbilt/DAF)',
+      format: 'EDI 866',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT',
+      transport: 'EDI over VAN',
+      port: null,
+      ackRequired: true,
+      demandType: 'sequence',
+      description: 'PACCAR uses EDI 866 Lean Production Sequence for Kenworth, Peterbilt, and DAF truck assembly. Suppliers receive component requirements in actual production build sequence. PACCAR requires EDI for all purchase orders per their implementation guidelines on PACCAR.net. Plants: Kenworth (Renton WA, Chillicothe OH), Peterbilt (Denton TX, Nashville TN), DAF (Eindhoven NL, Westerlo BE).'
+    },
+    WAP_CONVIS: {
+      name: 'Windsor Assembly CONVIS/PFCS',
+      oem: 'Stellantis (Windsor)',
+      format: 'pipe-delimited + PFCS',
+      fields: 'VIN|SEQ|PART|LINE|OEM|MODEL|PLANT|BODY',
+      transport: 'WebSphere MQ + TCP',
+      port: 8192,
+      ackRequired: true,
+      demandType: 'broadcast',
+      description: 'Windsor Assembly Plant (WAP) in Windsor, Ontario, Canada uses Stellantis CONVIS (Conveyor Vehicle Information System) for vehicle broadcast plus PFCS (Plant Floor Communication System) for delivery sequencing. WAP builds the Chrysler Pacifica and Dodge Grand Caravan. Record types: SP/SR/EP (Modular Build), E/G/F8/F3 (PFCS delivery sequence). SA = auto-acknowledgment. 33+ years of minivan production, 10M+ vehicles built.'
+    },
+    TESLA_JSON: {
+      name: 'Tesla Web JSON',
+      oem: 'Tesla',
+      format: 'JSON over HTTPS',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT',
+      transport: 'Web API (REST)',
+      port: 443,
+      ackRequired: false,
+      demandType: 'broadcast',
+      description: 'Tesla uses modern web-based JSON sequencing via URL API. Plant trigger broadcasts sent as JSON payloads. Plants: Fremont CA, Austin TX, Berlin, Shanghai.'
+    },
+    NISSAN_XML: {
+      name: 'Nissan XML',
+      oem: 'Nissan',
+      format: 'XML file',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT',
+      transport: 'XML file + email backup',
+      port: null,
+      ackRequired: true,
+      demandType: 'sequence',
+      description: 'Nissan uses XML file processing for production and delivery sequences. Email-based backup routing if primary fails. MPAB (Master Production Assembly Broadcast) standard.'
+    },
+    VW_WSDL: {
+      name: 'Volkswagen/Audi WSDL',
+      oem: 'Volkswagen/Audi',
+      format: 'WSDL web service',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT',
+      transport: 'RSA WSDL web service',
+      port: 443,
+      ackRequired: true,
+      demandType: 'sequence',
+      description: 'Volkswagen/Audi uses RSA WSDL library for web-service-based broadcast. Secure web service with RSA authentication.'
+    },
+    DAIMLER_CSV: {
+      name: 'Mercedes/Daimler CSV',
+      oem: 'Mercedes-Benz',
+      format: 'CSV file',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT|COLOR',
+      transport: 'File-based + MBOP',
+      port: null,
+      ackRequired: true,
+      demandType: 'sequence',
+      description: 'Mercedes/Daimler uses file-based broadcasts in CSV format. MBOP (Mercedes Benz Order Processor) manages the sequence data.'
+    },
+    HYUNDAI_TCP: {
+      name: 'Hyundai HMMA TCP',
+      oem: 'Hyundai',
+      format: 'TCP stream',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT|ALC',
+      transport: 'TCP with vendor auth',
+      port: 8300,
+      ackRequired: true,
+      demandType: 'broadcast',
+      description: 'Hyundai uses TCP with vendor code/password authentication. ALC and Module Code broadcast. HMMA (Hyundai Motor Manufacturing Alabama) plant in Montgomery.'
+    },
+    KIA_TCP: {
+      name: 'Kia KMMG TCP',
+      oem: 'Kia',
+      format: 'TCP stream',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT|RPC',
+      transport: 'TCP with digital bucket',
+      port: 8301,
+      ackRequired: true,
+      demandType: 'broadcast',
+      description: 'Kia uses TCP with KMMG Digital Bucket Sequencing protocol. RPC and ALC codes. KMMG (Kia Motors Manufacturing Georgia) plant in West Point GA.'
+    },
+    JLR_8DM: {
+      name: 'Jaguar/Land Rover 8DM',
+      oem: 'Jaguar/Land Rover',
+      format: '8DM EDI file',
+      fields: 'VIN|SEQ|PART|LINE|MODEL|PLANT',
+      transport: 'EDI file (8-day message)',
+      port: null,
+      ackRequired: true,
+      demandType: 'sequence',
+      description: 'Jaguar/Land Rover uses 8DM eight-day message EDI file. Call-off files vary by site. Plants: Solihull, Castle Bromwich, Halewood.'
     }
   };
 

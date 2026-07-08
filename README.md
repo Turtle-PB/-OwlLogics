@@ -59,7 +59,7 @@ If you or someone you know is struggling:
 - **5 SAP IDoc types**: DELVRY07, DESADV07, ORDERS05, INVOIC02, MATMAS05
 - **SAP PM BAPI simulation**: Equipment master, PM orders, measurement docs
 - **8 protocols**: Simulation, REST, WebSocket, MQTT, EDI, OPC-UA, Serial, Azure IoT Hub
-- **8 OEM sequencing protocols**: CONVIS, ILVS, SPAB, GBLN, GePICS, GALC, MPAB, SAP-HD
+- **19 OEM sequencing protocols**: CONVIS, ILVS, SPAB, GBLN, GePICS, GALC, MPAB, SAP-HD, Ford SQL Server, PACCAR EDI 866, Windsor CONVIS/PFCS, Tesla JSON, Nissan XML, VW/Audi WSDL, Mercedes CSV, Hyundai TCP, Kia TCP, JLR 8DM
 - **3D CSS visuals**: Racks, forklifts, shipyards, pallets — no external libraries
 - **Local AI optimizer**: Sequence, route, forklift, and rack optimization — 100% local
 - **Lean manufacturing metrics**: OEE, Takt Time, FPY, Heijunka smoothness, WIP
