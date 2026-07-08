@@ -1,4 +1,4 @@
-# 🦉 OwlLogics NexGen Owl Mode
+# 🦉 OwlLogics
 
 ## Automotive Parts Sequencing & Kitting System
 
