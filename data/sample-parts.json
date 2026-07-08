@@ -1,0 +1,295 @@
+[
+  {
+    "partNumber": "5WK-8A350-AB",
+    "customerPartNumber": "GM-19260412",
+    "description": "Front Bumper Assembly - Crimson Red",
+    "commodity": "Bumper",
+    "color": "Crimson Red",
+    "weight": 8.2,
+    "rackSlotType": "bumper_d50",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "5WK-8A351-CD",
+    "customerPartNumber": "GM-19260413",
+    "description": "Front Bumper Assembly - Metallic Silver",
+    "commodity": "Bumper",
+    "color": "Metallic Silver",
+    "weight": 8.1,
+    "rackSlotType": "bumper_d50",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "8K93-04200-A",
+    "customerPartNumber": "FORD-CX7-88210",
+    "description": "Headliner Assembly - Charcoal",
+    "commodity": "Headliner",
+    "color": "Charcoal",
+    "weight": 4.5,
+    "rackSlotType": "headliner_d30",
+    "pickingPattern": "reverse"
+  },
+  {
+    "partNumber": "8K93-04201-A",
+    "customerPartNumber": "FORD-CX7-88211",
+    "description": "Headliner Assembly - Pebble Beige",
+    "commodity": "Headliner",
+    "color": "Pebble Beige",
+    "weight": 4.5,
+    "rackSlotType": "headliner_d30",
+    "pickingPattern": "reverse"
+  },
+  {
+    "partNumber": "SEAT-CUSH-FR-01",
+    "customerPartNumber": "VW-5K0-881-051",
+    "description": "Front Seat Cushion Kit - Black Leather",
+    "commodity": "Seat",
+    "color": "Black Leather",
+    "weight": 12.3,
+    "rackSlotType": "seat_kit",
+    "pickingPattern": "forward",
+    "kitComponents": [
+      {
+        "component": "Foam Cushion",
+        "partNumber": "FOAM-5K0-880-045",
+        "qty": 1
+      },
+      {
+        "component": "Trim Cover",
+        "partNumber": "TRIM-5K0-880-051",
+        "qty": 1
+      },
+      {
+        "component": "Wire Harness",
+        "partNumber": "WHR-5K0-971-022",
+        "qty": 1
+      },
+      {
+        "component": "Heating Element",
+        "partNumber": "HEAT-5K0-963-014",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "partNumber": "SEAT-BCK-FR-01",
+    "customerPartNumber": "VW-5K0-880-051",
+    "description": "Front Seat Back Assembly - Black Leather",
+    "commodity": "Seat",
+    "color": "Black Leather",
+    "weight": 9.8,
+    "rackSlotType": "seat_kit",
+    "pickingPattern": "forward",
+    "kitComponents": [
+      {
+        "component": "Backrest Foam",
+        "partNumber": "FOAM-5K0-880-052",
+        "qty": 1
+      },
+      {
+        "component": "Backrest Trim",
+        "partNumber": "TRIM-5K0-880-060",
+        "qty": 1
+      },
+      {
+        "component": "Wire Harness",
+        "partNumber": "WHR-5K0-971-022",
+        "qty": 1
+      },
+      {
+        "component": "Lumbar Support",
+        "partNumber": "LUMBAR-5K0-881-001",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "partNumber": "WIND-MX2-FR",
+    "customerPartNumber": "HON-RV5-88210",
+    "description": "Windshield Glass - Tinted",
+    "commodity": "Windshield",
+    "color": "Tinted",
+    "weight": 15.0,
+    "rackSlotType": "glass_rack",
+    "pickingPattern": "reverse"
+  },
+  {
+    "partNumber": "WIPR-FR-SET",
+    "customerPartNumber": "HON-RV5-38510",
+    "description": "Front Wiper Blade Set",
+    "commodity": "Wiper",
+    "color": "Standard",
+    "weight": 0.5,
+    "rackSlotType": "small_parts_bin",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "TAIL-LH-RED",
+    "customerPartNumber": "GM-TX5-840-002",
+    "description": "Tail Lamp Assembly LH - Red",
+    "commodity": "TailLamp",
+    "color": "Red",
+    "weight": 1.8,
+    "rackSlotType": "tail_lamp_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "TAIL-RH-RED",
+    "customerPartNumber": "GM-TX5-840-003",
+    "description": "Tail Lamp Assembly RH - Red",
+    "commodity": "TailLamp",
+    "color": "Red",
+    "weight": 1.8,
+    "rackSlotType": "tail_lamp_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "DASH-CLSTR-FK",
+    "customerPartNumber": "FORD-CX7-10C8",
+    "description": "Instrument Cluster Assembly",
+    "commodity": "Dashboard",
+    "color": "Dark Grey",
+    "weight": 3.2,
+    "rackSlotType": "dash_rack",
+    "pickingPattern": "forward",
+    "kitComponents": [
+      {
+        "component": "Cluster Display",
+        "partNumber": "DSP-10C8-001",
+        "qty": 1
+      },
+      {
+        "component": "Speedometer Module",
+        "partNumber": "SPD-10C8-002",
+        "qty": 1
+      },
+      {
+        "component": "Wire Harness",
+        "partNumber": "WHR-10C8-003",
+        "qty": 1
+      },
+      {
+        "component": "Tachometer Module",
+        "partNumber": "TACH-10C8-004",
+        "qty": 1
+      }
+    ]
+  },
+  {
+    "partNumber": "HOOD-EMBM-AB",
+    "customerPartNumber": "GM-19260500",
+    "description": "Hood Emblem - Chrome",
+    "commodity": "Emblem",
+    "color": "Chrome",
+    "weight": 0.15,
+    "rackSlotType": "small_parts_bin",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "68298041AB",
+    "customerPartNumber": "68298041AB",
+    "description": "Front Fascia - Granite Crystal",
+    "commodity": "Fascia",
+    "color": "Granite Crystal",
+    "weight": 7.5,
+    "rackSlotType": "fascia_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "68298042AC",
+    "customerPartNumber": "68298042AC",
+    "description": "Front Fascia - Brilliant Black",
+    "commodity": "Fascia",
+    "color": "Brilliant Black",
+    "weight": 7.4,
+    "rackSlotType": "fascia_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "68303553AG",
+    "customerPartNumber": "68303553AG",
+    "description": "Ram Box Tailgate Panel - Stainless",
+    "commodity": "Tailgate",
+    "color": "Stainless Steel",
+    "weight": 11.2,
+    "rackSlotType": "tailgate_rack",
+    "pickingPattern": "reverse"
+  },
+  {
+    "partNumber": "56046959AH",
+    "customerPartNumber": "56046959AH",
+    "description": "Door Trim Panel LH - Black",
+    "commodity": "DoorTrim",
+    "color": "Black",
+    "weight": 5.8,
+    "rackSlotType": "door_trim_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "56046960AH",
+    "customerPartNumber": "56046960AH",
+    "description": "Door Trim Panel RH - Black",
+    "commodity": "DoorTrim",
+    "color": "Black",
+    "weight": 5.8,
+    "rackSlotType": "door_trim_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "68251648AC",
+    "customerPartNumber": "68251648AC",
+    "description": "Grille Assembly - Chrome",
+    "commodity": "Grille",
+    "color": "Chrome",
+    "weight": 3.5,
+    "rackSlotType": "grille_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "55156828AB",
+    "customerPartNumber": "55156828AB",
+    "description": "Instrument Panel Bezel - Satin Silver",
+    "commodity": "IPBezel",
+    "color": "Satin Silver",
+    "weight": 1.2,
+    "rackSlotType": "ip_bezel_rack",
+    "pickingPattern": "forward",
+    "kitComponents": [
+      {
+        "component": "Bezel Frame",
+        "partNumber": "55156829AB",
+        "qty": 1
+      },
+      {
+        "component": "Trim Ring",
+        "partNumber": "55156830AB",
+        "qty": 1
+      },
+      {
+        "component": "Mounting Clips",
+        "partNumber": "6502296AA",
+        "qty": 4
+      }
+    ]
+  },
+  {
+    "partNumber": "68029879AC",
+    "customerPartNumber": "68029879AC",
+    "description": "Headlamp Assembly LH - Projector",
+    "commodity": "Headlamp",
+    "color": "Clear/Black",
+    "weight": 4.2,
+    "rackSlotType": "headlamp_rack",
+    "pickingPattern": "forward"
+  },
+  {
+    "partNumber": "68029880AC",
+    "customerPartNumber": "68029880AC",
+    "description": "Headlamp Assembly RH - Projector",
+    "commodity": "Headlamp",
+    "color": "Clear/Black",
+    "weight": 4.2,
+    "rackSlotType": "headlamp_rack",
+    "pickingPattern": "forward"
+  }
+]

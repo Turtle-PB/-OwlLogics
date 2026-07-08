@@ -1,0 +1,233 @@
+{
+  "opCodes": [
+    {
+      "code": "OP-100",
+      "name": "Receive OEM Demand",
+      "description": "Process incoming OEM sequence broadcast (EDI 866, CONVIS, or MSQM pulse)",
+      "category": "Inbound",
+      "sapTransaction": "MIGO",
+      "cgmCode": "INBOUND_DEMAND"
+    },
+    {
+      "code": "OP-200",
+      "name": "Print Part Labels",
+      "description": "Generate barcoded part labels with sequence number (AIAG B-3.0 / Code 39)",
+      "category": "Labeling",
+      "sapTransaction": "ZPL_PART_LBL",
+      "cgmCode": "PART_LABEL"
+    },
+    {
+      "code": "OP-300",
+      "name": "Rack Loading - Forward",
+      "description": "Load rack in forward sequence (position 1 loaded first)",
+      "category": "Rack Loading",
+      "sapTransaction": "Zrack_Load_F",
+      "cgmCode": "RACK_LOAD_FWD"
+    },
+    {
+      "code": "OP-310",
+      "name": "Rack Loading - Reverse",
+      "description": "Load rack in reverse sequence (last position loaded first)",
+      "category": "Rack Loading",
+      "sapTransaction": "Zrack_Load_R",
+      "cgmCode": "RACK_LOAD_REV"
+    },
+    {
+      "code": "OP-400",
+      "name": "Kit Assembly",
+      "description": "Pick and assemble components into a kit for a sub-assembly",
+      "category": "Kitting",
+      "sapTransaction": "ZKIT_ASM",
+      "cgmCode": "KIT_ASSEMBLY"
+    },
+    {
+      "code": "OP-500",
+      "name": "Scan Validation (Poka-Yoke)",
+      "description": "Validate each part in rack against its assigned slot position",
+      "category": "Validation",
+      "sapTransaction": "ZSCAN_VAL",
+      "cgmCode": "SCAN_VALIDATE"
+    },
+    {
+      "code": "OP-600",
+      "name": "Print Rack Label",
+      "description": "Generate AIAG B-3.0 / 4x6 rack label with grid schematic",
+      "category": "Labeling",
+      "sapTransaction": "ZPL_RACK_LBL",
+      "cgmCode": "RACK_LABEL"
+    },
+    {
+      "code": "OP-700",
+      "name": "Staging",
+      "description": "Arrange completed racks for outbound truck loading",
+      "category": "Outbound",
+      "sapTransaction": "ZSTAGE",
+      "cgmCode": "STAGING"
+    },
+    {
+      "code": "OP-800",
+      "name": "Trailer Load",
+      "description": "Load racks onto trailer in sequence per OEM requirement",
+      "category": "Outbound",
+      "sapTransaction": "ZTRAILER_LOAD",
+      "cgmCode": "TRAILER_LOAD"
+    },
+    {
+      "code": "OP-900",
+      "name": "Generate ASN (856)",
+      "description": "Create outbound 856 ASN transaction for ERP/EDI upload",
+      "category": "Outbound",
+      "sapTransaction": "VL10C",
+      "cgmCode": "ASN_856"
+    },
+    {
+      "code": "OP-1000",
+      "name": "CONVIS Broadcast Receive",
+      "description": "FCA/Stellantis CONVIS sequencing broadcast — receive and process vehicle order sequence",
+      "category": "Inbound",
+      "sapTransaction": "ZCONVIS_RECV",
+      "cgmCode": "CONVIS_BROADCAST"
+    },
+    {
+      "code": "OP-1100",
+      "name": "CPOC Sequence Validation",
+      "description": "FCA CPOC (Container Parts Order Confirmation) — validate container contents against sequence",
+      "category": "Validation",
+      "sapTransaction": "ZCPOC_VAL",
+      "cgmCode": "CPOC_VALIDATE"
+    }
+  ],
+  "rackTypes": [
+    {
+      "id": "bumper_d50",
+      "name": "Bumper Rack D50",
+      "slotCount": 20,
+      "pattern": "forward",
+      "gridRows": 4,
+      "gridCols": 5,
+      "description": "Standard 20-slot bumper delivery rack"
+    },
+    {
+      "id": "headliner_d30",
+      "name": "Headliner Rack D30",
+      "slotCount": 15,
+      "pattern": "reverse",
+      "gridRows": 3,
+      "gridCols": 5,
+      "description": "15-slot vertical headliner rack, loaded bottom-to-top"
+    },
+    {
+      "id": "seat_kit",
+      "name": "Seat Kit Rack",
+      "slotCount": 12,
+      "pattern": "forward",
+      "gridRows": 3,
+      "gridCols": 4,
+      "description": "12-slot rack for sequenced seat kits"
+    },
+    {
+      "id": "glass_rack",
+      "name": "Glass Rack",
+      "slotCount": 10,
+      "pattern": "reverse",
+      "gridRows": 2,
+      "gridCols": 5,
+      "description": "10-slot glass rack, reverse-loaded"
+    },
+    {
+      "id": "tail_lamp_rack",
+      "name": "Tail Lamp Rack",
+      "slotCount": 24,
+      "pattern": "forward",
+      "gridRows": 4,
+      "gridCols": 6,
+      "description": "24-slot tail lamp delivery rack"
+    },
+    {
+      "id": "dash_rack",
+      "name": "Dashboard Rack",
+      "slotCount": 8,
+      "pattern": "forward",
+      "gridRows": 2,
+      "gridCols": 4,
+      "description": "8-slot dashboard assembly rack"
+    },
+    {
+      "id": "small_parts_bin",
+      "name": "Small Parts Bin",
+      "slotCount": 40,
+      "pattern": "forward",
+      "gridRows": 5,
+      "gridCols": 8,
+      "description": "40-slot bin for small components (emblems, wipers)"
+    },
+    {
+      "id": "fascia_rack",
+      "name": "Fascia Rack (FCA)",
+      "slotCount": 16,
+      "pattern": "forward",
+      "gridRows": 4,
+      "gridCols": 4,
+      "description": "16-slot fascia/front-end rack for FCA/Stellantis vehicles"
+    },
+    {
+      "id": "tailgate_rack",
+      "name": "Tailgate Rack (FCA Ram)",
+      "slotCount": 10,
+      "pattern": "reverse",
+      "gridRows": 2,
+      "gridCols": 5,
+      "description": "10-slot tailgate rack for Ram trucks, reverse-loaded"
+    },
+    {
+      "id": "door_trim_rack",
+      "name": "Door Trim Rack (FCA)",
+      "slotCount": 20,
+      "pattern": "forward",
+      "gridRows": 4,
+      "gridCols": 5,
+      "description": "20-slot door trim panel rack for FCA vehicles"
+    },
+    {
+      "id": "grille_rack",
+      "name": "Grille Rack (FCA)",
+      "slotCount": 14,
+      "pattern": "forward",
+      "gridRows": 2,
+      "gridCols": 7,
+      "description": "14-slot grille assembly rack for FCA/Jeep/Ram"
+    },
+    {
+      "id": "ip_bezel_rack",
+      "name": "IP Bezel Rack (FCA)",
+      "slotCount": 30,
+      "pattern": "forward",
+      "gridRows": 5,
+      "gridCols": 6,
+      "description": "30-slot instrument panel bezel rack for FCA"
+    },
+    {
+      "id": "headlamp_rack",
+      "name": "Headlamp Rack (FCA)",
+      "slotCount": 24,
+      "pattern": "forward",
+      "gridRows": 4,
+      "gridCols": 6,
+      "description": "24-slot headlamp assembly rack for FCA/Jeep/Ram"
+    }
+  ],
+  "lines": [
+    { "id": "LINE-01", "name": "Bumper Line A", "commodity": "Bumper", "rackType": "bumper_d50", "oem": "General Motors" },
+    { "id": "LINE-02", "name": "Headliner Line B", "commodity": "Headliner", "rackType": "headliner_d30", "oem": "Ford Motor Co" },
+    { "id": "LINE-03", "name": "Seat Assembly Line C", "commodity": "Seat", "rackType": "seat_kit", "oem": "Volkswagen" },
+    { "id": "LINE-04", "name": "Glass Line D", "commodity": "Windshield", "rackType": "glass_rack", "oem": "Honda" },
+    { "id": "LINE-05", "name": "Lamp Line E", "commodity": "TailLamp", "rackType": "tail_lamp_rack", "oem": "General Motors" },
+    { "id": "LINE-06", "name": "Dashboard Line F", "commodity": "Dashboard", "rackType": "dash_rack", "oem": "Ford Motor Co" },
+    { "id": "LINE-07", "name": "Fascia Line G (FCA SHAP)", "commodity": "Fascia", "rackType": "fascia_rack", "oem": "FCA/Stellantis" },
+    { "id": "LINE-08", "name": "Tailgate Line H (FCA BAP)", "commodity": "Tailgate", "rackType": "tailgate_rack", "oem": "FCA/Stellantis" },
+    { "id": "LINE-09", "name": "Door Trim Line I (FCA JNAP)", "commodity": "DoorTrim", "rackType": "door_trim_rack", "oem": "FCA/Stellantis" },
+    { "id": "LINE-10", "name": "Grille Line J (FCA WTAP)", "commodity": "Grille", "rackType": "grille_rack", "oem": "FCA/Stellantis" },
+    { "id": "LINE-11", "name": "IP Bezel Line K (FCA TNP)", "commodity": "IPBezel", "rackType": "ip_bezel_rack", "oem": "FCA/Stellantis" },
+    { "id": "LINE-12", "name": "Headlamp Line L (FCA SHAP)", "commodity": "Headlamp", "rackType": "headlamp_rack", "oem": "FCA/Stellantis" }
+  ]
+}

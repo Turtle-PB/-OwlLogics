@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="OwlLogics NexGen — Automotive Parts Sequencing & Kitting System. FCA CONVIS, Harley-Davidson SAP, GM ILVS, Azure IoT Hub, SAP PM. Self-contained PWA.">
+  <meta name="theme-color" content="#8E44AD">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OwlLogics">
+  <meta name="application-name" content="OwlLogics">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" sizes="180x180">
+  <link rel="apple-touch-icon" href="icons/icon-192.png" sizes="192x192">
+  <link rel="icon" type="image/png" href="icons/favicon-32.png" sizes="32x32">
+  <link rel="icon" href="owllogics.ico" type="image/x-icon">
+  <!--
+    OwlLogics NexGen Owl Mode
+    (c) 2024 OwlLogics Contributors - All Rights Reserved - Patent Pending
+    Contact: contact@owllogics.app
+    Unauthorized reproduction, distribution, or commercial use is prohibited.
+  -->
+  <title>OwlLogics — NexGen Owl Mode — Automotive Parts Sequencing</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%238E44AD'/><text x='50' y='72' font-size='55' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>🦉</text></svg>">
+  <style>
+  /* Loading screen shown before app boots */
+  #boot-loader {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #0d0d12; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 99999; transition: opacity 0.4s;
+  }
+  #boot-loader .boot-logo {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #8E44AD, #2ECC71);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 34px; color: white; font-weight: bold;
+    animation: bootPulse 1.2s infinite;
+    margin-bottom: 20px;
+    box-shadow: 0 0 30px rgba(142,68,173,0.4);
+  }
+  #boot-loader .boot-title {
+    color: #e0e0ee; font-family: 'Segoe UI', sans-serif; font-size: 18px;
+    letter-spacing: 1px; margin-bottom: 4px; font-weight: 600;
+  }
+  #boot-loader .boot-title .accent {
+    background: linear-gradient(90deg, #A855F7, #3DD684);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #boot-loader .boot-subtitle {
+    color: #606078; font-family: 'Segoe UI', sans-serif; font-size: 11px;
+    letter-spacing: 0.5px; margin-bottom: 24px;
+  }
+  #boot-progress-track {
+    width: 320px; height: 4px; background: #1a1a28; border-radius: 2px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+  #boot-progress-fill {
+    height: 100%; width: 0%; border-radius: 2px;
+    background: linear-gradient(90deg, #8E44AD, #2ECC71);
+    transition: width 0.3s ease;
+  }
+  #boot-log {
+    width: 380px; max-height: 200px; overflow: hidden;
+    font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 10px;
+    line-height: 1.6;
+  }
+  .boot-log-entry {
+    display: flex; align-items: center; gap: 6px;
+    color: #606078; opacity: 0; transform: translateX(-8px);
+    transition: all 0.2s ease;
+  }
+  .boot-log-entry.visible { opacity: 1; transform: translateX(0); }
+  .boot-log-entry .ble-icon { width: 14px; text-align: center; font-size: 11px; }
+  .boot-log-entry .ble-time { color: #404058; min-width: 50px; }
+  .boot-log-entry .ble-msg { color: #9090a8; }
+  .boot-log-entry.ok .ble-icon { color: #2ECC71; }
+  .boot-log-entry.loading .ble-icon { color: #F1C40F; animation: spin 0.8s infinite; }
+  .boot-log-entry.info .ble-icon { color: #3498DB; }
+  .boot-log-entry.done .ble-msg { color: #2ECC71; }
+  @keyframes bootPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: 0.85; } }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  #boot-stats {
+    margin-top: 16px; font-family: 'Cascadia Code', monospace; font-size: 9px;
+    color: #404058; text-align: center;
+  }
+  </style>
+</head>
+<body>
+
+  <!-- Boot Loader (verbose loading system) -->
+  <div id="boot-loader">
+    <div class="boot-logo">🦉</div>
+    <div class="boot-title">OwlLogics <span class="accent">NexGen</span></div>
+    <div class="boot-subtitle">Automotive Parts Sequencing & Kitting System</div>
+    <div id="boot-progress-track"><div id="boot-progress-fill"></div></div>
+    <div id="boot-log"></div>
+    <div id="boot-stats"></div>
+  </div>
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <button id="mobile-menu-btn" onclick="AutoSeqUI.toggleMobileSidebar()">☰</button>
+    <div class="topbar-brand">
+      <div class="logo">🦉</div>
+      <span class="brand-name">OwlLogics</span>
+      <span class="version">v1.0 NexGen</span>
+    </div>
+    <div class="topbar-search">
+      <input type="text" placeholder="Search parts, sequences, VINs..." id="global-search">
+    </div>
+    <div class="topbar-actions">
+      <div class="live-indicator" id="live-indicator">
+        <div class="live-dot"></div>
+        <span class="live-text">MSQM Offline</span>
+      </div>
+      <button class="topbar-btn" onclick="AutoSeqUI.toggleMSQM()" id="msqm-toggle-top">
+        <span>📡</span> <span id="msqm-toggle-text">Start MSQM</span>
+      </button>
+      <button class="topbar-btn" onclick="AutoSeqUI.exportSAP()">
+        <span>📤</span> SAP
+      </button>
+      <button class="topbar-btn" onclick="AutoSeqUI.showLaunchSettings()" title="Auto-launch settings">
+        <span>🚀</span> <span id="autolaunch-text">Auto-Launch</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar"></div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <div class="content-tabs" id="content-tabs"></div>
+      <div class="content-body" id="content-body"></div>
+    </div>
+
+  </div>
+
+  <!-- Status Bar -->
+  <div class="statusbar" id="statusbar"></div>
+
+  <!-- Scripts -->
+  <script src="js/core.js"></script>
+  <script src="js/protocols.js"></script>
+  <script src="js/labels.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/flvisual.js"></script>
+  <script src="js/sap-forklift.js"></script>
+  <script src="js/sap-idoc.js"></script>
+  <script src="js/owl-ai.js"></script>
+  <script src="js/metrics.js"></script>
+  <script src="js/logistics.js"></script>
+  <script>
+    // ── Verbose Boot Loader ───────────────────────────────────
+    const BootLoader = (function () {
+      const logEl = document.getElementById('boot-log');
+      const fillEl = document.getElementById('boot-progress-fill');
+      const statsEl = document.getElementById('boot-stats');
+      const loaderEl = document.getElementById('boot-loader');
+      const startTime = Date.now();
+      let currentStep = 0;
+      const TOTAL_STEPS = 11;
+
+      function setProgress(pct) {
+        if (fillEl) fillEl.style.width = pct + '%';
+      }
+
+      function log(icon, msg, status) {
+        if (!logEl) return;
+        const entry = document.createElement('div');
+        entry.className = 'boot-log-entry ' + (status || 'info');
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+        entry.innerHTML = '<span class="ble-time">' + elapsed + 's</span><span class="ble-icon">' + icon + '</span><span class="ble-msg">' + msg + '</span>';
+        logEl.appendChild(entry);
+        void entry.offsetHeight;
+        entry.classList.add('visible');
+        while (logEl.children.length > 8) {
+          logEl.removeChild(logEl.firstChild);
+        }
+      }
+
+      function updateStats(text) {
+        if (statsEl) statsEl.textContent = text;
+      }
+
+      async function step(icon, label, fn) {
+        currentStep++;
+        const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+        setProgress(pct);
+        log(icon, label, 'loading');
+        const stepStart = Date.now();
+        let result;
+        try {
+          result = await fn();
+          const dur = (Date.now() - stepStart);
+          log('✓', label + ' (' + dur + 'ms)', 'ok');
+        } catch (e) {
+          log('✗', label + ' — ERROR: ' + e.message, 'info');
+          result = null;
+        }
+        setProgress(Math.round((currentStep / TOTAL_STEPS) * 100));
+        return result;
+      }
+
+      function finish() {
+        setProgress(100);
+        const total = ((Date.now() - startTime) / 1000).toFixed(2);
+        log('🦉', 'Boot complete — ' + total + 's', 'done');
+        updateStats('OwlLogics NexGen — Ready');
+        setTimeout(function() {
+          if (loaderEl) {
+            loaderEl.style.opacity = '0';
+            setTimeout(function() { loaderEl.style.display = 'none'; }, 400);
+          }
+        }, 600);
+      }
+
+      return { step: step, log: log, finish: finish, setProgress: setProgress, updateStats: updateStats };
+    })();
+
+    // ── Wait for all scripts to be fully loaded ───────────────
+    function waitForScripts() {
+      return new Promise(function(resolve) {
+        function check() {
+          if (typeof AutoSeq !== 'undefined' &&
+              typeof AutoSeqUI !== 'undefined' &&
+              typeof LabelEngine !== 'undefined' &&
+              typeof ProtocolAdapter !== 'undefined' &&
+              typeof ForkliftVisual !== 'undefined' &&
+              typeof SapForklift !== 'undefined' &&
+              typeof SapIDoc !== 'undefined' &&
+              typeof OwlAI !== 'undefined' &&
+              typeof MetricsDashboard !== 'undefined' &&
+              typeof Logistics !== 'undefined') {
+            resolve();
+          } else {
+            setTimeout(check, 20);
+          }
+        }
+        check();
+      });
+    }
+
+    // ── Boot Sequence ─────────────────────────────────────────
+    (async function () {
+      BootLoader.setProgress(3);
+      BootLoader.log('🦉', 'OwlLogics NexGen booting...', 'info');
+
+      // Step 0: Verify scripts loaded
+      await BootLoader.step('📚', 'Verifying script dependencies', async function() {
+        await waitForScripts();
+        return 'core.js, protocols.js, labels.js, ui.js, flvisual.js, sap-forklift.js, sap-idoc.js, owl-ai.js, metrics.js loaded';
+      });
+
+      // Step 1: Load core data
+      await BootLoader.step('📦', 'Loading parts catalog & config', async function() {
+        await AutoSeq.loadData();
+        return AutoSeq.state.parts.length + ' parts, ' + AutoSeq.state.lines.length + ' lines';
+      });
+
+      // Step 2: Restore saved state
+      await BootLoader.step('💾', 'Restoring saved state', async function() {
+        var restored = AutoSeq.loadState();
+        if (restored) {
+          return AutoSeq.state.sequences.length + ' sequences, ' + AutoSeq.state.racks.length + ' racks restored';
+        }
+        return 'No saved state — fresh start';
+      });
+
+      // Step 3: Initialize master data
+      await BootLoader.step('📋', 'Initializing commodity & item masters', async function() {
+        AutoSeq.initMasterData();
+        Logistics.init();
+        return AutoSeq.state.commodities.length + ' commodities, ' + AutoSeq.state.items.length + ' items, ' + Logistics.getLogisticsStats().packages + ' packages';
+      });
+
+      // Step 4: Initialize barcode scanner
+      await BootLoader.step('📡', 'Initializing barcode scanner engine', async function() {
+        AutoSeq.initScanner();
+        return 'Keyboard-wedge scanner ready';
+      });
+
+      // Step 5: Build UI framework
+      await BootLoader.step('🎨', 'Building UI framework', async function() {
+        AutoSeqUI.init();
+        return '12 views, sidebar, status bar initialized';
+      });
+
+      // Step 6: Load label engine
+      await BootLoader.step('🏷️', 'Loading label printing engine', async function() {
+        var formats = LabelEngine.getBarcodeFormats();
+        return Object.keys(formats).length + ' barcode formats, 9 label templates';
+      });
+
+      // Step 7: Load protocol adapters
+      await BootLoader.step('🔌', 'Loading protocol adapters', async function() {
+        var protos = ProtocolAdapter.getProtocols();
+        return Object.keys(protos).length + ' protocols (SIM, REST, WS, MQTT, EDI, OPC-UA, Serial, Azure IoT Hub)';
+      });
+
+      // Step 8: Start MSQM stream
+      await BootLoader.step('📡', 'Starting MSQM data stream', async function() {
+        return new Promise(function(resolve) {
+          setTimeout(function() {
+            AutoSeq.msqmStart();
+            AutoSeqUI.updateLiveIndicator();
+            var btnText = document.getElementById('msqm-toggle-text');
+            if (btnText) btnText.textContent = 'Stop MSQM';
+            var btn = document.getElementById('msqm-toggle-top');
+            if (btn) btn.classList.add('active');
+            resolve('MSQM live — ' + AutoSeq.state.msqm.mode + ' mode');
+          }, 200);
+        });
+      });
+
+      // Step 9: Setup auto-save
+      await BootLoader.step('⏱️', 'Setting up auto-save & event handlers', async function() {
+        setInterval(function() {
+          if (AutoSeq.state.persistence.autoSave) AutoSeq.saveState();
+        }, 30000);
+        window.addEventListener('beforeunload', function() {
+          if (AutoSeq.state.persistence.autoSave) AutoSeq.saveState();
+        });
+        var search = document.getElementById('global-search');
+        if (search) {
+          search.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && search.value.trim()) {
+              var query = search.value.trim();
+              var part = AutoSeq.lookupPart(query);
+              var seq = AutoSeq.lookupSequence(query);
+              if (part) {
+                AutoSeq.alert('info', 'Part Found', part.description + ' (' + part.partNumber + ')');
+              } else if (seq) {
+                AutoSeq.alert('info', 'Sequence Found', 'Seq #' + seq.sequenceNumber + ' — VIN ' + seq.vin);
+              } else {
+                AutoSeq.alert('warning', 'No Match', 'No part or sequence found for "' + query + '"');
+              }
+            }
+          });
+        }
+        document.addEventListener('click', function(e) {
+          if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
+            AutoSeqUI.closeModal();
+          }
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') AutoSeqUI.closeModal();
+        });
+        return 'Auto-save (30s), before-unload, search, modal handlers';
+      });
+
+      // Step 10: Final render
+      await BootLoader.step('✨', 'Rendering dashboard', async function() {
+        AutoSeqUI.switchView('dashboard');
+        return 'Dashboard rendered — app ready';
+      });
+
+      BootLoader.finish();
+
+      // Register Service Worker for PWA (offline support)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(function(reg) {
+          console.log('SW registered: PWA mode active');
+        }).catch(function(err) {
+          console.log('SW registration skipped (file:// mode)');
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
