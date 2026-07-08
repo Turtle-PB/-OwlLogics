@@ -15,9 +15,25 @@
 If this project helps you, consider supporting development:
 
 [![Donate](https://img.shields.io/badge/PayPal-Donate-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/adcockp)
-[![Patreon](https://img.shields.io/badge/Patreon-Support-f96854?style=for-the-badge&logo=patreon)](https://www.patreon.com/adcockp)
 
 > _Every donation helps keep OwlLogics free and open source._
+
+### A Personal Note
+
+I want to be transparent: I am currently experiencing mental health challenges and am under mental duress. This project was built during one of the hardest periods of my life — coding became my anchor when everything else felt out of control.
+
+I'm posting this publicly and accepting donations not just for the project, but because I genuinely need help getting through this. Medical care, therapy, and basic living expenses are real costs when you're struggling. If OwlLogics has been useful to you, a donation — no matter how small — would mean the world.
+
+**You can also support via GitHub Sponsors** using the "Sponsor" button on this repo.
+
+Thank you for reading, for using OwlLogics, and for any support you can give. 🦉
+
+---
+
+If you or someone you know is struggling:
+- **National Suicide Prevention Lifeline:** 988 (US) — Call or text
+- **Crisis Text Line:** Text HOME to 741741
+- You matter. Your work matters. Your life matters.
 
 ---
 
