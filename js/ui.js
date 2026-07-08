@@ -3023,6 +3023,71 @@ const AutoSeqUI = (function () {
     html += '<div class="stat-card" style="--accent-color:var(--orange);padding:12px"><div class="stat-label">Kits</div><div class="stat-value" style="font-size:20px;color:var(--orange)">' + stats.totalKits + '</div><div class="stat-sub">' + stats.completeKits + ' complete</div></div>';
     html += '</div>';
 
+    // Scan Time Report
+    var scanReport = AutoSeq.getScanTimeReport();
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">⏱️</span> Scan Time Report — Operator Productivity & Error Analysis</div><div class="panel-body">';
+
+    if (scanReport.totalScans === 0) {
+      html += '<p class="text-muted text-center" style="padding:20px">No scan data yet. Start scanning parts to generate time reports.</p>';
+    } else {
+      // Scan summary cards
+      html += '<div class="dashboard-grid" style="grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">';
+      html += '<div class="stat-card"><div class="stat-label">Total Scans</div><div class="stat-value">' + scanReport.totalScans + '</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">Avg Scan Time</div><div class="stat-value" style="color:var(--blue)">' + scanReport.avgScanTime + 's</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">Error Rate</div><div class="stat-value" style="color:' + (scanReport.errorRate > 5 ? 'var(--red)' : 'var(--emerald)') + '">' + scanReport.errorRate + '%</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">OK Scans</div><div class="stat-value" style="color:var(--emerald)">' + scanReport.totalOk + '</div></div>';
+      html += '<div class="stat-card"><div class="stat-label">Error Scans</div><div class="stat-value" style="color:var(--red)">' + scanReport.totalErr + '</div></div>';
+      html += '</div>';
+
+      // By operator
+      html += '<div class="ai-section-header">👤 Scan Time by Operator</div>';
+      html += '<table class="data-table"><thead><tr><th>Operator</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time/Scan</th><th>Total Time</th></tr></thead><tbody>';
+      scanReport.byOperator.forEach(function(o) {
+        var errPct = o.scans > 0 ? Math.round(o.err / o.scans * 1000) / 10 : 0;
+        var errColor = errPct > 5 ? 'var(--red)' : 'var(--text-primary)';
+        html += '<tr><td><strong>' + o.name + '</strong></td><td>' + o.scans + '</td><td style="color:var(--emerald)">' + o.ok + '</td><td style="color:var(--red)">' + o.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + o.avgTime + 's</td><td>' + Math.round(o.totalTime) + 's</td></tr>';
+      });
+      html += '</tbody></table>';
+
+      // By station
+      html += '<div class="ai-section-header">🖥️ Scan Time by Station (View)</div>';
+      html += '<table class="data-table"><thead><tr><th>Station</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time/Scan</th></tr></thead><tbody>';
+      scanReport.byStation.forEach(function(s) {
+        var errPct = s.scans > 0 ? Math.round(s.err / s.scans * 1000) / 10 : 0;
+        var errColor = errPct > 5 ? 'var(--red)' : 'var(--text-primary)';
+        html += '<tr><td><strong>' + s.name.replace(/_/g,' ') + '</strong></td><td>' + s.scans + '</td><td style="color:var(--emerald)">' + s.ok + '</td><td style="color:var(--red)">' + s.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + s.avgTime + 's</td></tr>';
+      });
+      html += '</tbody></table>';
+
+      // Hourly breakdown
+      if (scanReport.hourly.length > 0) {
+        html += '<div class="ai-section-header">🕐 Hourly Scan Breakdown</div>';
+        html += '<table class="data-table"><thead><tr><th>Hour</th><th>Scans</th><th>OK</th><th>Errors</th><th>Error %</th><th>Avg Time/Scan</th><th>Throughput</th></tr></thead><tbody>';
+        scanReport.hourly.forEach(function(h) {
+          var errPct = h.scans > 0 ? Math.round(h.err / h.scans * 1000) / 10 : 0;
+          var errColor = errPct > 5 ? 'var(--red)' : 'var(--text-primary)';
+          var throughput = h.scans + ' scans/hr';
+          html += '<tr><td><strong>' + h.hour + '</strong></td><td>' + h.scans + '</td><td style="color:var(--emerald)">' + h.ok + '</td><td style="color:var(--red)">' + h.err + '</td><td style="color:' + errColor + '">' + errPct + '%</td><td>' + h.avgTime + 's</td><td>' + throughput + '</td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+
+      // Recent scan log
+      html += '<div class="ai-section-header">📋 Recent Scans (Last 20)</div>';
+      html += '<table class="data-table"><thead><tr><th>Time</th><th>Code</th><th>Operator</th><th>Station</th><th>Rack</th><th>Result</th><th>Detail</th></tr></thead><tbody>';
+      scanReport.recentScans.forEach(function(s) {
+        var resColor = s.result === 'ok' ? 'var(--emerald)' : s.result === 'err' ? 'var(--red)' : 'var(--text-muted)';
+        var timeStr = s.time ? new Date(s.time).toLocaleTimeString() : '—';
+        html += '<tr><td style="font-size:10px">' + timeStr + '</td><td class="font-mono" style="font-size:10px">' + (s.code || '—') + '</td><td style="font-size:10px">' + (s.operator || '—') + '</td><td style="font-size:10px">' + (s.station || '—').replace(/_/g,' ') + '</td><td style="font-size:10px">' + (s.rackId || '—') + '</td><td style="color:' + resColor + ';font-weight:600">' + s.result + '</td><td style="font-size:10px">' + (s.detail || '—') + '</td></tr>';
+      });
+      html += '</tbody></table>';
+
+      // Download scan report
+      html += '<button class="btn btn-sm btn-emerald mt-2" onclick="AutoSeqUI.downloadScanReport()">📊 Download Scan Report CSV</button>';
+    }
+
+    html += '</div></div>';
+
     // OEM breakdown report
     html += '<div class="panel"><div class="panel-header"><span class="panel-icon">📊</span> OEM Sequence Breakdown Report</div><div class="panel-body">';
     if (summary.length === 0) {
@@ -5072,6 +5137,29 @@ const AutoSeqUI = (function () {
     AutoSeq.alert('success', 'PowerShell Script Downloaded', 'Run on Windows Server to configure printers');
   }
 
+  function downloadScanReport() {
+    var r = AutoSeq.getScanTimeReport();
+    if (r.totalScans === 0) { AutoSeq.alert('warning', 'No Data', 'No scans to report'); return; }
+    var csv = 'Operator,Scans,OK,Errors,ErrorPct,AvgTimeSec,TotalTimeSec\n';
+    r.byOperator.forEach(function(o) {
+      var errPct = o.scans > 0 ? Math.round(o.err / o.scans * 1000) / 10 : 0;
+      csv += o.name + ',' + o.scans + ',' + o.ok + ',' + o.err + ',' + errPct + ',' + o.avgTime + ',' + Math.round(o.totalTime) + '\n';
+    });
+    csv += '\nStation,Scans,OK,Errors,ErrorPct,AvgTimeSec\n';
+    r.byStation.forEach(function(s) {
+      var errPct = s.scans > 0 ? Math.round(s.err / s.scans * 1000) / 10 : 0;
+      csv += s.name + ',' + s.scans + ',' + s.ok + ',' + s.err + ',' + errPct + ',' + s.avgTime + '\n';
+    });
+    csv += '\nHour,Scans,OK,Errors,ErrorPct,AvgTimeSec\n';
+    r.hourly.forEach(function(h) {
+      var errPct = h.scans > 0 ? Math.round(h.err / h.scans * 1000) / 10 : 0;
+      csv += h.hour + ',' + h.scans + ',' + h.ok + ',' + h.err + ',' + errPct + ',' + h.avgTime + '\n';
+    });
+    csv += '\nSummary\nTotal Scans,' + r.totalScans + '\nOK Scans,' + r.totalOk + '\nError Scans,' + r.totalErr + '\nError Rate,' + r.errorRate + '%\nAvg Scan Time,' + r.avgScanTime + 's\n';
+    downloadFile(csv, 'scan-time-report.csv', 'text/csv');
+    AutoSeq.alert('success', 'Downloaded', 'Scan time report CSV saved');
+  }
+
   // ══════════════════════════════════════════════════════════
   //  YARD MANAGEMENT VIEW
   // ══════════════════════════════════════════════════════════
@@ -6331,5 +6419,6 @@ const AutoSeqUI = (function () {
     syncBY,
     testPrint,
     downloadPrintConfig,
+    downloadScanReport,
   };
 })();

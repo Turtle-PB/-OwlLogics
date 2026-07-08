@@ -418,6 +418,13 @@ const AutoSeq = (function () {
       time: new Date(),
       result: 'pending',
       detail: '',
+      duration: 0,
+      operator: state.currentOperator || 'Operator',
+      station: state.activeView,
+      partNumber: '',
+      sequenceNumber: '',
+      rackId: state.currentRack ? state.currentRack.id : '',
+      slotPosition: 0,
     };
     state.scanLog.unshift(scanEntry);
     if (state.scanLog.length > 100) state.scanLog.pop();
@@ -862,10 +869,71 @@ const AutoSeq = (function () {
       totalScans: state.scanLog.length,
       okScans: state.scanLog.filter(s => s.result === 'ok').length,
       errScans: state.scanLog.filter(s => s.result === 'err').length,
-      msqmConnected: state.msqm.connected,
       msqmRunning: state.msqm.running,
+      msqmConnected: state.msqm.connected,
       lines: state.lines.length,
       opCodes: state.opCodes.length,
+    };
+  }
+
+  function getScanTimeReport() {
+    var log = state.scanLog;
+    if (!log.length) return { totalScans: 0, totalOk: 0, totalErr: 0, avgScanTime: 0, errorRate: 0, byOperator: [], byStation: [], hourly: [], recentScans: [] };
+
+    var totalDuration = 0;
+    var byOperator = {};
+    var byStation = {};
+    var hourly = {};
+
+    log.forEach(function(s) {
+      var dur = s.duration || 1;
+      totalDuration += dur;
+
+      var op = s.operator || 'Unknown';
+      if (!byOperator[op]) byOperator[op] = { name: op, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      byOperator[op].scans++;
+      byOperator[op].totalTime += dur;
+      if (s.result === 'ok') byOperator[op].ok++;
+      if (s.result === 'err') byOperator[op].err++;
+
+      var st = s.station || 'Unknown';
+      if (!byStation[st]) byStation[st] = { name: st, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      byStation[st].scans++;
+      byStation[st].totalTime += dur;
+      if (s.result === 'ok') byStation[st].ok++;
+      if (s.result === 'err') byStation[st].err++;
+
+      var hr = s.time ? new Date(s.time).getHours() : 0;
+      var key = hr + ':00';
+      if (!hourly[key]) hourly[key] = { hour: key, scans: 0, ok: 0, err: 0, totalTime: 0, avgTime: 0 };
+      hourly[key].scans++;
+      hourly[key].totalTime += dur;
+      if (s.result === 'ok') hourly[key].ok++;
+      if (s.result === 'err') hourly[key].err++;
+    });
+
+    var operatorArr = Object.values(byOperator);
+    operatorArr.forEach(function(o) { o.avgTime = o.scans > 0 ? Math.round(o.totalTime / o.scans * 10) / 10 : 0; });
+    operatorArr.sort(function(a,b) { return b.scans - a.scans; });
+
+    var stationArr = Object.values(byStation);
+    stationArr.forEach(function(st) { st.avgTime = st.scans > 0 ? Math.round(st.totalTime / st.scans * 10) / 10 : 0; });
+    stationArr.sort(function(a,b) { return b.scans - a.scans; });
+
+    var hourlyArr = Object.values(hourly);
+    hourlyArr.forEach(function(h) { h.avgTime = h.scans > 0 ? Math.round(h.totalTime / h.scans * 10) / 10 : 0; });
+    hourlyArr.sort(function(a,b) { return a.hour.localeCompare(b.hour); });
+
+    return {
+      totalScans: log.length,
+      totalOk: log.filter(function(s) { return s.result === 'ok'; }).length,
+      totalErr: log.filter(function(s) { return s.result === 'err'; }).length,
+      errorRate: log.length > 0 ? Math.round(log.filter(function(s) { return s.result === 'err'; }).length / log.length * 1000) / 10 : 0,
+      avgScanTime: log.length > 0 ? Math.round(totalDuration / log.length * 10) / 10 : 0,
+      byOperator: operatorArr,
+      byStation: stationArr,
+      hourly: hourlyArr,
+      recentScans: log.slice(0, 20)
     };
   }
 
@@ -1516,6 +1584,7 @@ const AutoSeq = (function () {
     generatePartLabel,
     generateRackLabel,
     getStats,
+    getScanTimeReport,
     lookupPart,
     lookupSequence,
     processScan,
