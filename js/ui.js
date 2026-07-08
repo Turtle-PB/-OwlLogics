@@ -43,6 +43,7 @@ const AutoSeqUI = (function () {
     yms:          { icon: '🏭',  label: 'Yard Management',      render: renderYMS },
     conveyor:     { icon: '🔄',  label: 'Conveyor Pick List',   render: renderConveyor },
     blueyonder:   { icon: '🔵',  label: 'Blue Yonder WMS',      render: renderBlueYonder },
+    shipping:     { icon: '📦',  label: 'Carrier Shipping',     render: renderShipping },
   };
 
   // ── Init ───────────────────────────────────────────────────
@@ -5176,6 +5177,148 @@ const AutoSeqUI = (function () {
   }
 
   // ══════════════════════════════════════════════════════════
+  //  CARRIER SHIPPING VIEW (FedEx, UPS, USPS, DHL)
+  // ══════════════════════════════════════════════════════════
+
+  function renderShipping() {
+    var h = '';
+    var stats = CarrierShip.getShipmentStats();
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">📦</span> Carrier Shipping — FedEx, UPS, USPS, DHL</div><div class="panel-body">';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">';
+    h += '<strong>Multi-Carrier Shipping:</strong> Generate shipping labels for FedEx, UPS, USPS, and DHL. Rate shop across carriers, generate ZPL shipping labels for Zebra printers, create shipments with tracking numbers. Apple ships via UPS/FedEx/USPS/DHL — OwlLogics supports all four.';
+    h += '</div>';
+
+    // Stats
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Shipments</div><div class="stat-value">' + stats.total + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Labels</div><div class="stat-value" style="color:var(--blue)">' + (stats.labels_created||0) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Shipped</div><div class="stat-value" style="color:var(--emerald)">' + (stats.shipped||0) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">In Transit</div><div class="stat-value" style="color:var(--orange)">' + (stats.in_transit||0) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">FedEx</div><div class="stat-value" style="color:#660099">' + ((stats.byCarrier||{}).FEDEX||0) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">UPS</div><div class="stat-value" style="color:#8B4513">' + ((stats.byCarrier||{}).UPS||0) + '</div></div>';
+    h += '</div>';
+
+    // Rate calculator
+    h += '<div class="ai-section-header">💰 Multi-Carrier Rate Calculator</div>';
+    h += '<div class="card" style="margin-bottom:12px">';
+    h += '<div class="form-row">';
+    h += '<div class="form-group"><label>From ZIP</label><input type="text" id="ship-fromZip" value="48326" style="width:80px"></div>';
+    h += '<div class="form-group"><label>To ZIP</label><input type="text" id="ship-toZip" value="95014" style="width:80px"></div>';
+    h += '<div class="form-group"><label>Weight (lbs)</label><input type="number" id="ship-weight" value="12" style="width:60px"></div>';
+    h += '<div class="form-group"><label>L (in)</label><input type="number" id="ship-length" value="14" style="width:50px"></div>';
+    h += '<div class="form-group"><label>W (in)</label><input type="number" id="ship-width" value="10" style="width:50px"></div>';
+    h += '<div class="form-group"><label>H (in)</label><input type="number" id="ship-height" value="8" style="width:50px"></div>';
+    h += '<div class="form-group"><label>Residential</label><select id="ship-residential"><option value="false">No</option><option value="true">Yes</option></select></div>';
+    h += '</div>';
+    h += '<button class="btn btn-emerald btn-sm mt-2" onclick="AutoSeqUI.rateShop()">🔍 Rate Shop</button>';
+    h += '</div>';
+
+    // Carrier service reference
+    h += '<div class="ai-section-header">🚚 Carrier Services</div>';
+    h += '<table class="data-table"><thead><tr><th>Carrier</th><th>Service</th><th>Transit</th><th>Max Wt</th><th>Dim Divisor</th><th>Tracking Prefix</th><th>Label</th></tr></thead><tbody>';
+    Object.keys(CarrierShip.CARRIERS).forEach(function(key) {
+      var c = CarrierShip.CARRIERS[key];
+      c.services.forEach(function(svc) {
+        h += '<tr><td><strong>' + c.name + '</strong></td><td style="font-size:10px">' + svc.name + '</td><td>' + svc.transitDays + ' days</td><td>' + svc.maxWeight + ' lbs</td><td>' + svc.dimDivisor + '</td><td class="font-mono">' + c.trackingPrefix + '</td><td>' + c.labelFormat + ' ' + c.labelSize + '</td></tr>';
+      });
+    });
+    h += '</tbody></table>';
+
+    // Shipments table
+    h += '<div class="ai-section-header">📋 Shipments</div>';
+    h += '<table class="data-table"><thead><tr><th>ID</th><th>Carrier</th><th>Service</th><th>Tracking</th><th>To</th><th>Weight</th><th>Rate</th><th>Status</th><th>Label</th></tr></thead><tbody>';
+    CarrierShip.state.shipments.forEach(function(sh) {
+      var carrierColor = sh.carrier === 'FEDEX' ? '#660099' : sh.carrier === 'UPS' ? '#8B4513' : sh.carrier === 'USPS' ? '#336699' : '#D2222D';
+      var stColor = sh.status === 'delivered' ? 'var(--emerald)' : sh.status === 'in_transit' ? 'var(--blue)' : sh.status === 'shipped' ? 'var(--orange)' : 'var(--text-muted)';
+      h += '<tr>';
+      h += '<td><strong>' + sh.id + '</strong></td>';
+      h += '<td style="color:' + carrierColor + ';font-weight:600">' + sh.carrier + '</td>';
+      h += '<td style="font-size:10px">' + sh.service + '</td>';
+      h += '<td class="font-mono" style="font-size:10px">' + sh.trackingNumber + '</td>';
+      h += '<td style="font-size:10px">' + sh.toName + '<br>' + sh.toCity + ', ' + sh.toState + ' ' + sh.toZip + '</td>';
+      h += '<td>' + sh.weight + ' lbs</td>';
+      h += '<td>$' + sh.rate.toFixed(2) + '</td>';
+      h += '<td style="color:' + stColor + '">' + sh.status.replace(/_/g,' ') + '</td>';
+      h += '<td><button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.downloadLabel(\'' + sh.id + '\')">🏷️ ZPL</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // Electronics OEM profiles
+    h += '<div class="ai-section-header">🍎 Electronics OEM Profiles (Apple + Dell)</div>';
+    h += '<table class="data-table"><thead><tr><th>OEM</th><th>HQ</th><th>System</th><th>EDI</th><th>Shipping</th><th>Plants</th></tr></thead><tbody>';
+    Object.keys(CarrierShip.ELECTRONICS_OEMS).forEach(function(key) {
+      var oem = CarrierShip.ELECTRONICS_OEMS[key];
+      h += '<tr>';
+      h += '<td><strong>' + oem.name + '</strong></td>';
+      h += '<td style="font-size:10px">' + oem.hq + '</td>';
+      h += '<td style="font-size:10px">' + oem.system + '</td>';
+      h += '<td style="font-size:9px">' + oem.ediTransactions.join(', ') + '</td>';
+      h += '<td style="font-size:10px">' + oem.shipping.join(', ') + '</td>';
+      h += '<td style="font-size:10px">' + oem.plants.join('; ') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+
+    // OEM requirements
+    h += '<div class="ai-section-header">📋 OEM Supplier Requirements</div>';
+    Object.keys(CarrierShip.ELECTRONICS_OEMS).forEach(function(key) {
+      var oem = CarrierShip.ELECTRONICS_OEMS[key];
+      h += '<div class="card" style="margin-bottom:8px">';
+      h += '<div class="demo-card-title">' + oem.name + ' <span class="demo-badge-owl">OEM</span></div>';
+      h += '<ul style="font-size:10px;line-height:1.6">';
+      oem.requirements.forEach(function(req) {
+        h += '<li>' + req + '</li>';
+      });
+      h += '</ul>';
+      h += '<div style="font-size:9px;color:var(--text-muted)">' + oem.notes + '</div>';
+      h += '</div>';
+    });
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function rateShop() {
+    var fromZip = document.getElementById('ship-fromZip') ? document.getElementById('ship-fromZip').value : '48326';
+    var toZip = document.getElementById('ship-toZip') ? document.getElementById('ship-toZip').value : '95014';
+    var weight = parseFloat(document.getElementById('ship-weight') ? document.getElementById('ship-weight').value : 12);
+    var length = parseFloat(document.getElementById('ship-length') ? document.getElementById('ship-length').value : 14);
+    var width = parseFloat(document.getElementById('ship-width') ? document.getElementById('ship-width').value : 10);
+    var height = parseFloat(document.getElementById('ship-height') ? document.getElementById('ship-height').value : 8);
+    var residential = (document.getElementById('ship-residential') ? document.getElementById('ship-residential').value : 'false') === 'true';
+
+    var rates = CarrierShip.calculateRates(fromZip, toZip, weight, length, width, height, residential);
+    var html = '<div class="ai-section-header">💰 Rate Results — ' + fromZip + ' → ' + toZip + ' (' + weight + ' lbs, ' + length + 'x' + width + 'x' + height + ')</div>';
+    html += '<table class="data-table"><thead><tr><th>Carrier</th><th>Service</th><th>Transit</th><th>Billable Wt</th><th>Base</th><th>Fuel</th><th>Total</th></tr></thead><tbody>';
+    rates.forEach(function(r) {
+      var carrierColor = r.carrier === 'FEDEX' ? '#660099' : r.carrier === 'UPS' ? '#8B4513' : r.carrier === 'USPS' ? '#336699' : '#D2222D';
+      html += '<tr><td style="color:' + carrierColor + ';font-weight:600">' + r.carrierName + '</td><td style="font-size:10px">' + r.serviceName + '</td><td>' + r.transitDays + '</td><td>' + r.billableWeight + ' lbs</td><td>$' + r.baseRate.toFixed(2) + '</td><td>$' + r.fuelSurcharge.toFixed(2) + '</td><td style="font-weight:700;color:var(--emerald)">$' + r.totalRate.toFixed(2) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:6px">Cheapest: ' + rates[0].carrierName + ' ' + rates[0].serviceName + ' at $' + rates[0].totalRate.toFixed(2) + ' (' + rates[0].transitDays + ' days)</div>';
+    var resultsDiv = document.getElementById('rate-results');
+    if (!resultsDiv) {
+      var div = document.createElement('div');
+      div.id = 'rate-results';
+      div.innerHTML = html;
+      var panel = document.querySelector('.panel-body');
+      if (panel) panel.appendChild(div);
+    } else {
+      resultsDiv.innerHTML = html;
+    }
+  }
+
+  function downloadLabel(shipmentId) {
+    var sh = CarrierShip.state.shipments.find(function(s) { return s.id === shipmentId; });
+    if (!sh) { AutoSeq.alert('error', 'Not Found', 'Shipment not found'); return; }
+    downloadFile(sh.labelZPL, sh.trackingNumber + '.zpl', 'text/plain');
+    AutoSeq.alert('success', 'Label Downloaded', sh.carrier + ' ' + sh.trackingNumber + ' (ZPL for Zebra printer)');
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  YARD MANAGEMENT VIEW
   // ══════════════════════════════════════════════════════════
 
@@ -6435,5 +6578,7 @@ const AutoSeqUI = (function () {
     testPrint,
     downloadPrintConfig,
     downloadScanReport,
+    rateShop,
+    downloadLabel,
   };
 })();
