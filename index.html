@@ -157,6 +157,7 @@
   <script src="js/owl-ai.js"></script>
   <script src="js/metrics.js"></script>
   <script src="js/logistics.js"></script>
+  <script src="js/standards.js"></script>
   <script>
     // ── Verbose Boot Loader ───────────────────────────────────
     const BootLoader = (function () {
@@ -238,7 +239,8 @@
               typeof SapIDoc !== 'undefined' &&
               typeof OwlAI !== 'undefined' &&
               typeof MetricsDashboard !== 'undefined' &&
-              typeof Logistics !== 'undefined') {
+              typeof Logistics !== 'undefined' &&
+              typeof Standards !== 'undefined') {
             resolve();
           } else {
             setTimeout(check, 20);
@@ -256,7 +258,7 @@
       // Step 0: Verify scripts loaded
       await BootLoader.step('📚', 'Verifying script dependencies', async function() {
         await waitForScripts();
-        return 'core.js, protocols.js, labels.js, ui.js, flvisual.js, sap-forklift.js, sap-idoc.js, owl-ai.js, metrics.js loaded';
+        return 'core.js, protocols.js, labels.js, ui.js, flvisual.js, sap-forklift.js, sap-idoc.js, owl-ai.js, metrics.js, logistics.js, standards.js loaded';
       });
 
       // Step 1: Load core data

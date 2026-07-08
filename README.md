@@ -37,7 +37,7 @@ If you or someone you know is struggling:
 
 ---
 
-## 📋 Features (26 Views)
+## 📋 Features (27 Views)
 
 | Category | Views |
 |----------|-------|
@@ -48,18 +48,27 @@ If you or someone you know is struggling:
 | **Visual** | Shipyards (3D), Trucks & Rail, Forklift Fleet (2D/3D/SAP), 3D Rack Visualizer |
 | **Integrations** | SAP PM (BAPI), SAP IDoc (5 types), TN3270 Terminal, Azure IoT Hub |
 | **Intelligence** | AI Optimizer (local, no cloud), Live Metrics Dashboard |
+| **Compliance** | Standards & Compliance (OEM protocols, AIAG labels, lean metrics, poka-yoke, CKD, ISPM-15) |
 | **Info** | NextGen vs OwlLogics Comparison, Documentation (8 tabs) |
 
 ### Key Capabilities
 
 - **7 barcode formats**: Code 128, Code 39, Code 93, I2of5, EAN-13, DataMatrix, QR
 - **ZPL output** for Zebra printers (203/300/600 DPI)
+- **5 AIAG label standards**: B-3 (shipping), B-10 (container), B-17 (small parts), B-18 (sequence), CKD-Customs
 - **5 SAP IDoc types**: DELVRY07, DESADV07, ORDERS05, INVOIC02, MATMAS05
 - **SAP PM BAPI simulation**: Equipment master, PM orders, measurement docs
 - **8 protocols**: Simulation, REST, WebSocket, MQTT, EDI, OPC-UA, Serial, Azure IoT Hub
+- **8 OEM sequencing protocols**: CONVIS, ILVS, SPAB, GBLN, GePICS, GALC, MPAB, SAP-HD
 - **3D CSS visuals**: Racks, forklifts, shipyards, pallets — no external libraries
 - **Local AI optimizer**: Sequence, route, forklift, and rack optimization — 100% local
-- **Multi-OEM support**: FCA CONVIS, Harley-Davidson SAP, GM ILVS, Ford, VW, Honda
+- **Lean manufacturing metrics**: OEE, Takt Time, FPY, Heijunka smoothness, WIP
+- **Poka-yoke engine**: 6 error checks (wrong part, slot, sequence, rack, color, missing)
+- **Milk run calculator**: Multi-stop logistics with trolley capacity and utilization
+- **Kit completeness verification**: Component-level scan tracking with missing detection
+- **CKD/SKD compliance**: 16 HS tariff codes, ISPM-15 wood packaging requirements
+- **11 returnable container types**: Racks, totes, pallets, ISO containers with deposit tracking
+- **Multi-OEM support**: FCA CONVIS, Harley-Davidson SAP, GM ILVS, Ford SPAB, Toyota GBLN, BMW GePICS, Honda GALC, Nissan MPAB
 - **PWA**: Installable on Android, iOS, Windows, macOS — works offline
 - **TN3270 terminal**: Built-in emulator with 16 public mainframe presets
 
@@ -106,6 +115,7 @@ OwlLogics/
     owl-ai.js          — Local AI optimization engine
     metrics.js         — Real-time metrics dashboard
     logistics.js       — Packages, pallets, CKD, shipping, shipyards
+    standards.js       — OEM protocols, AIAG labels, lean metrics, poka-yoke, CKD compliance
   owllogics.ico        — Desktop icon
   open.bat             — Quick launcher (Windows)
   launch_silent.vbs    — Silent launcher (no console)

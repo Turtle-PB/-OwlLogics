@@ -36,6 +36,7 @@ const AutoSeqUI = (function () {
     items:        { icon: '📋',  label: 'Item Master',       render: renderItems },
     'nextgen-compare': { icon: '⚖️', label: 'NextGen vs OwlLogics', render: renderNextGenCompare },
     docs:         { icon: '📖',  label: 'Documentation',       render: renderDocs },
+    standards:    { icon: '📐',  label: 'Standards & Compliance', render: renderStandards },
   };
 
   // ── Init ───────────────────────────────────────────────────
@@ -4920,6 +4921,176 @@ const AutoSeqUI = (function () {
     html += '</div>';
 
     html += '</div></div>';
+    return html;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  STANDARDS & COMPLIANCE VIEW
+  // ══════════════════════════════════════════════════════════
+
+  function renderStandards() {
+    var html = '';
+
+    // OEM Sequencing Protocols
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">📡</span> OEM Sequencing Protocols</div><div class="panel-body">';
+    html += '<table class="data-table"><thead><tr><th>Protocol</th><th>OEM</th><th>Format</th><th>Transport</th><th>Demand Type</th></tr></thead><tbody>';
+    Object.keys(Standards.OEM_PROTOCOLS).forEach(function(key) {
+      var p = Standards.OEM_PROTOCOLS[key];
+      html += '<tr>';
+      html += '<td><strong>' + key + '</strong><br><span style="font-size:9px;color:var(--text-muted)">' + p.name + '</span></td>';
+      html += '<td>' + p.oem + '</td>';
+      html += '<td>' + p.format + '</td>';
+      html += '<td>' + p.transport + (p.port ? ' :' + p.port : '') + '</td>';
+      html += '<td>' + p.demandType + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
+    html += '<strong>JIS vs JIT:</strong> Just-In-Sequence delivers parts in exact build order (zero buffer, sequence-critical). Just-In-Time delivers parts at the right time/quantity (minimal buffer, not sequence-dependent). JIS is used for high-mix/custom vehicles (luxury, HD, color-dependent).';
+    html += '</div>';
+    html += '</div></div>';
+
+    // AIAG Label Standards
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">🏷️</span> AIAG Label Standards</div><div class="panel-body">';
+    html += '<table class="data-table"><thead><tr><th>Standard</th><th>Size</th><th>Barcode Format</th><th>Max Barcodes</th><th>Use Case</th></tr></thead><tbody>';
+    Object.keys(Standards.AIAG_LABELS).forEach(function(key) {
+      var l = Standards.AIAG_LABELS[key];
+      html += '<tr>';
+      html += '<td><strong>' + key + '</strong><br><span style="font-size:9px;color:var(--text-muted)">' + l.name + '</span></td>';
+      html += '<td>' + l.size + '</td>';
+      html += '<td>' + l.format + '</td>';
+      html += '<td>' + l.maxBarcodes + '</td>';
+      html += '<td style="font-size:10px">' + l.description + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '</div></div>';
+
+    // Returnable Container Types
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">📦</span> Returnable Container Management</div><div class="panel-body">';
+    html += '<table class="data-table"><thead><tr><th>Container Type</th><th>Capacity</th><th>Returnable</th><th>Deposit</th><th>Lifecycle (yrs)</th><th>OEM Spec</th></tr></thead><tbody>';
+    Object.keys(Standards.CONTAINER_TYPES).forEach(function(key) {
+      var c = Standards.CONTAINER_TYPES[key];
+      html += '<tr>';
+      html += '<td><strong>' + key + '</strong><br><span style="font-size:9px;color:var(--text-muted)">' + c.name + '</span></td>';
+      html += '<td>' + c.capacity + ' slots</td>';
+      html += '<td>' + (c.returnable ? '✅ Yes' : '❌ No') + '</td>';
+      html += '<td>$' + c.deposit + '</td>';
+      html += '<td>' + c.avgLifecycle + '</td>';
+      html += '<td style="font-size:10px">' + c.oemSpec + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    html += '</div></div>';
+
+    // Lean Manufacturing Metrics Calculator
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">📊</span> Lean Manufacturing Metrics</div><div class="panel-body">';
+    var oee = Standards.calculateOEE(85, 90, 95);
+    var takt = Standards.calculateTaktTime(400, 27600);
+    var fpy = Standards.calculateFPY(380, 400);
+    html += '<div class="dashboard-grid" style="grid-template-columns:repeat(4,1fr);gap:10px">';
+    html += '<div class="stat-card"><div class="stat-label">OEE</div><div class="stat-value" style="color:var(--emerald)">' + oee + '%</div><div class="stat-sub">Availability 85% × Performance 90% × Quality 95%</div></div>';
+    html += '<div class="stat-card"><div class="stat-label">Takt Time</div><div class="stat-value" style="color:var(--blue)">' + takt + 's</div><div class="stat-sub">400 units / 7.67 hrs (27,600s)</div></div>';
+    html += '<div class="stat-card"><div class="stat-label">First Pass Yield</div><div class="stat-value" style="color:var(--purple)">' + fpy + '%</div><div class="stat-sub">380 good / 400 total</div></div>';
+    var heijunka = Standards.calculateHeijunkaVolume(AutoSeq.state.sequences.slice(0, 50), 8);
+    html += '<div class="stat-card"><div class="stat-label">Heijunka Smoothness</div><div class="stat-value" style="color:var(--orange)">' + heijunka.smoothness + '%</div><div class="stat-sub">Sequence leveling across 8 buckets</div></div>';
+    html += '</div>';
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:10px;line-height:1.5">';
+    html += '<strong>OEE</strong> (Overall Equipment Effectiveness) = Availability × Performance × Quality. World-class is 85%+.<br>';
+    html += '<strong>Takt Time</strong> = Available production time / Customer demand. The rhythm at which products must be produced.<br>';
+    html += '<strong>FPY</strong> (First Pass Yield) = Good parts / Total parts. Measures quality without rework.<br>';
+    html += '<strong>Heijunka</strong> = Production leveling. Smooths output to avoid spikes. Toyota standard — 100% smoothness means perfectly even production.';
+    html += '</div>';
+    html += '</div></div>';
+
+    // Poka-Yoke Engine
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">🛡️</span> Poka-Yoke Error Proofing Engine</div><div class="panel-body">';
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">';
+    html += 'Poka-Yoke (mistake-proofing) prevents operators from loading the wrong part, wrong slot, wrong sequence, or wrong rack. OwlLogics checks 6 error conditions on every scan:';
+    html += '</div>';
+    var demoCheck = Standards.pokaYokeCheck(
+      { partNumber: '5WK-8A350-AB', slotPosition: 3, sequenceNumber: 1001, colorCode: 'CRIMSON', rackId: 'RACK-001' },
+      { partNumber: '5WK-8A350-AB', slotPosition: 3, sequenceNumber: 1001, colorCode: 'CRIMSON', rackId: 'RACK-001' }
+    );
+    var failCheck = Standards.pokaYokeCheck(
+      { partNumber: 'WRONG-PART-999', slotPosition: 5, sequenceNumber: 1001, rackId: 'RACK-001' },
+      { partNumber: '5WK-8A350-AB', slotPosition: 3, sequenceNumber: 1001, rackId: 'RACK-001' }
+    );
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+    html += '<div class="stat-card" style="flex:1;min-width:200px;--accent-color:var(--emerald)"><div class="stat-label">✅ Correct Scan</div><div class="stat-value" style="font-size:14px;color:var(--emerald)">' + demoCheck.severity + '</div><div class="stat-sub">Errors: ' + demoCheck.errors.length + ' | Warnings: ' + demoCheck.warnings.length + '</div></div>';
+    html += '<div class="stat-card" style="flex:1;min-width:200px;--accent-color:var(--red)"><div class="stat-label">❌ Wrong Part Scan</div><div class="stat-value" style="font-size:14px;color:var(--red)">' + failCheck.severity + '</div><div class="stat-sub">Errors: ' + failCheck.errors.length + ' | Warnings: ' + failCheck.warnings.length + '</div></div>';
+    html += '</div>';
+    if (failCheck.errors.length > 0) {
+      html += '<div style="margin-top:8px;padding:8px;background:rgba(231,76,60,0.05);border-radius:var(--radius);border-left:3px solid var(--red);font-size:10px">';
+      html += '<strong>Error details:</strong><br>';
+      failCheck.errors.forEach(function(e) { html += '• ' + e.type + ': ' + e.message + '<br>'; });
+      html += '</div>';
+    }
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px">6 checks: WRONG_PART, WRONG_SLOT, OUT_OF_SEQUENCE, WRONG_RACK, COLOR_MISMATCH (warning), MISSING_PART</div>';
+    html += '</div></div>';
+
+    // CKD/SKD Compliance
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">🌍</span> CKD/SKD Export Compliance</div><div class="panel-body">';
+    html += '<div class="ai-section-header">HS (Harmonized System) Tariff Codes</div>';
+    html += '<table class="data-table"><thead><tr><th>HS Code</th><th>Description</th></tr></thead><tbody>';
+    Object.keys(Standards.CKD_HS_CODES).forEach(function(code) {
+      html += '<tr><td class="font-mono"><strong>' + code + '</strong></td><td>' + Standards.CKD_HS_CODES[code] + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    html += '<div style="margin-top:12px;padding:10px;background:rgba(243,156,18,0.05);border-radius:var(--radius);border-left:3px solid var(--orange);font-size:10px;line-height:1.6">';
+    var ispm = Standards.ISPM15_REQUIREMENTS;
+    html += '<strong style="color:var(--orange)">ISPM-15 Wood Packaging Compliance</strong><br>';
+    html += '<strong>Stamp:</strong> ' + ispm.stamp + '<br>';
+    html += '<strong>Format:</strong> ' + ispm.format + '<br>';
+    html += '<strong>Exempt:</strong> ' + ispm.exempt.join(', ') + '<br>';
+    html += '<strong>Countries:</strong> ' + ispm.countries + '<br>';
+    html += '<strong>Description:</strong> ' + ispm.description;
+    html += '</div>';
+    html += '</div></div>';
+
+    // Milk Run Calculator
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">🚚</span> Milk Run Logistics Calculator</div><div class="panel-body">';
+    var milkRun = Standards.calculateMilkRun([
+      { name: 'Stamping → Welding', partCount: 45, distance: 120 },
+      { name: 'Welding -> Paint', partCount: 30, distance: 80 },
+      { name: 'Paint -> Assembly', partCount: 50, distance: 95 },
+      { name: 'Assembly -> Dock', partCount: 25, distance: 60 }
+    ], 15, 50);
+    html += '<div class="dashboard-grid" style="grid-template-columns:repeat(3,1fr);gap:10px">';
+    html += '<div class="stat-card"><div class="stat-label">Total Parts</div><div class="stat-value">' + milkRun.totalParts + '</div><div class="stat-sub">' + milkRun.stops + ' stops, ' + milkRun.totalDistance + 'm</div></div>';
+    html += '<div class="stat-card"><div class="stat-label">Trips Needed</div><div class="stat-value">' + milkRun.tripsNeeded + '</div><div class="stat-sub">Trolley capacity: ' + milkRun.trolleyCapacity + '</div></div>';
+    html += '<div class="stat-card"><div class="stat-label">Utilization</div><div class="stat-value" style="color:var(--emerald)">' + milkRun.utilization + '%</div><div class="stat-sub">' + milkRun.partsPerMinute + ' parts/min</div></div>';
+    html += '</div>';
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
+    html += '<strong>Milk Run:</strong> A logistics route where a trolley or cart makes scheduled stops at multiple workstations, picking up and delivering parts in a fixed cycle. Named after the milk delivery model. Reduces WIP and improves flow.';
+    html += '</div>';
+    html += '</div></div>';
+
+    // Kit Completeness
+    html += '<div class="panel"><div class="panel-header"><span class="panel-icon">🔧</span> Kit Completeness Verification</div><div class="panel-body">';
+    var demoKit = Standards.verifyKitComplete({
+      components: [
+        { partNumber: 'CLAMP-001', scanned: true },
+        { partNumber: 'HOUSING-002', scanned: true },
+        { partNumber: 'SWITCH-003', scanned: true },
+        { partNumber: 'BOLT-M8-012', scanned: false }
+      ]
+    });
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap">';
+    html += '<div class="stat-card" style="flex:1;min-width:150px;--accent-color:var(--orange)"><div class="stat-label">Kit Status</div><div class="stat-value" style="color:var(--orange)">' + (demoKit.complete ? '✅ Complete' : '⚠️ Incomplete') + '</div></div>';
+    html += '<div class="stat-card" style="flex:1;min-width:150px"><div class="stat-label">Scanned</div><div class="stat-value">' + demoKit.scanned + '/' + demoKit.total + '</div><div class="stat-sub">' + demoKit.completeness + '%</div></div>';
+    html += '<div class="stat-card" style="flex:1;min-width:150px;--accent-color:var(--red)"><div class="stat-label">Missing</div><div class="stat-value" style="color:var(--red)">' + demoKit.missing.length + '</div></div>';
+    html += '</div>';
+    if (demoKit.missing.length > 0) {
+      html += '<div style="margin-top:8px;padding:8px;background:rgba(231,76,60,0.05);border-radius:var(--radius);border-left:3px solid var(--red);font-size:10px">';
+      html += '<strong>Missing components:</strong> ' + demoKit.missing.join(', ');
+      html += '</div>';
+    }
+    html += '<div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5">';
+    html += '<strong>Kit Completeness:</strong> Each component must be scanned before the kit is marked complete. Prevents shipping incomplete kits to the assembly line. BMW GePICS requires kitting at the supplier before sequencing.';
+    html += '</div>';
+    html += '</div></div>';
+
     return html;
   }
 
