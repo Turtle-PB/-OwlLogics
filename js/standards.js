@@ -95,6 +95,16 @@ var Standards = (function () {
       demandType: 'sequence',
       description: 'MPAB (Master Production Assembly Broadcast) — Nissan sequencing system.'
     },
+    PETERBILT_SEQ: {
+      name: 'Peterbilt Tractor Sequencing',
+      oem: 'PACCAR / Peterbilt',
+      format: 'EDI 866 + Pipe',
+      fields: 'VIN|SEQ|MODEL|CAB|SLEEPER|HOOD|AXLE|FRAME|PLANT|LINE',
+      transport: 'EDI 866 via VAN + TCP :8300',
+      port: 8300,
+      plant: 'Denton, TX (Peterbilt) + Sainte-Thérèse, QC (Canada)',
+      notes: 'Terrabon sequences large tractor components — cabs, sleeper berths, hoods, axles, frames — on flatbed and step-deck trailers. Components are oversized and require special securement (chains, binders, edge protectors). Build sequence: frame → axle → cab → sleeper → hood → bumper. Peterbilt Model 579, 567, 389, 367.'
+    },
     SAP_HD: {
       name: 'Harley-Davidson SAP',
       oem: 'Harley-Davidson',

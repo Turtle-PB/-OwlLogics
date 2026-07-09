@@ -40,6 +40,7 @@ const AutoSeqUI = (function () {
     fleet:        { icon: '🚛',  label: 'Fleet & GPS',           render: renderFleet },
     trailers:     { icon: '🚚',  label: 'Trailer Mgmt',         render: renderTrailers },
     printing:     { icon: '🖨️',  label: 'Print Server',         render: renderPrinting },
+    petseq:       { icon: '🚛',  label: 'Peterbilt Seq',        render: renderPeterbiltSeq },
     yms:          { icon: '🏭',  label: 'Yard Management',      render: renderYMS },
     conveyor:     { icon: '🔄',  label: 'Conveyor Pick List',   render: renderConveyor },
     blueyonder:   { icon: '🔵',  label: 'Blue Yonder WMS',      render: renderBlueYonder },
@@ -5013,6 +5014,170 @@ const AutoSeqUI = (function () {
   }
 
   // ══════════════════════════════════════════════════════════
+  //  PETERBILT TRACTOR SEQUENCING VIEW
+  //  Terrabon-style: large tractor components on flatbed/step-deck
+  //  Build sequence: frame → axle → cab → sleeper → hood → bumper
+  // ══════════════════════════════════════════════════════════
+
+  var petSeqState = {
+    sequences: [
+      { id:'PB-SEQ-001', vin:'1XPBDP9X1ND123456', model:'579', plant:'Denton TX', line:'Line 1', status:'in_progress', items: [
+        { seq:1, component:'Frame Rail', partNum:'PAC-53000-10', trailer:'FB-001', securement:'Chains (4)', scanned:true, weight:2800, dims:'480x30x12' },
+        { seq:2, component:'Front Axle', partNum:'PAC-34000-10', trailer:'FB-001', securement:'Chains (2)', scanned:true, weight:1200, dims:'102x8x8' },
+        { seq:3, component:'Cab Assembly', partNum:'PAC-10000-10', trailer:'FB-002', securement:'Chains (6) + Edge Protectors', scanned:true, weight:3500, dims:'120x96x96' },
+        { seq:4, component:'Sleeper Berth', partNum:'PAC-11000-10', trailer:'FB-002', securement:'Straps (4) + Edge Protectors', scanned:false, weight:1800, dims:'72x96x80' },
+        { seq:5, component:'Hood Assembly', partNum:'PAC-20000-10', trailer:'FB-003', securement:'Straps (4)', scanned:false, weight:450, dims:'96x96x48' },
+        { seq:6, component:'Front Bumper', partNum:'PAC-60000-10', trailer:'FB-003', securement:'Chains (2)', scanned:false, weight:350, dims:'102x12x8' }
+      ], createdAt:'2024-07-08 06:00', destination:'Peterbilt Denton TX' },
+      { id:'PB-SEQ-002', vin:'1XPBDP9X3ND654321', model:'389', plant:'Denton TX', line:'Line 2', status:'pending', items: [
+        { seq:1, component:'Frame Rail', partNum:'PAC-53000-20', trailer:'FB-004', securement:'Chains (4)', scanned:false, weight:3100, dims:'510x30x12' },
+        { seq:2, component:'Front Axle', partNum:'PAC-34000-20', trailer:'FB-004', securement:'Chains (2)', scanned:false, weight:1400, dims:'102x8x8' },
+        { seq:3, component:'Cab Assembly', partNum:'PAC-10000-20', trailer:'FB-005', securement:'Chains (6) + Edge Protectors', scanned:false, weight:3800, dims:'120x96x96' },
+        { seq:4, component:'Sleeper Berth', partNum:'PAC-11000-20', trailer:'FB-005', securement:'Straps (4) + Edge Protectors', scanned:false, weight:2100, dims:'72x96x80' },
+        { seq:5, component:'Hood Assembly', partNum:'PAC-20000-20', trailer:'FB-006', securement:'Straps (4)', scanned:false, weight:520, dims:'96x96x48' },
+        { seq:6, component:'Front Bumper', partNum:'PAC-60000-20', trailer:'FB-006', securement:'Chains (2)', scanned:false, weight:400, dims:'102x12x8' }
+      ], createdAt:'2024-07-08 07:30', destination:'Peterbilt Denton TX' }
+    ],
+    trailers: [
+      { id:'FB-001', type:'48ft Flatbed', loaded:[1,2], totalWeight:4000, maxWeight:48000, status:'loaded', securement:'Chains + Binders' },
+      { id:'FB-002', type:'48ft Flatbed', loaded:[3], totalWeight:3500, maxWeight:48000, status:'partial', securement:'Chains + Edge Protectors' },
+      { id:'FB-003', type:'53ft Step-Deck', loaded:[], totalWeight:0, maxWeight:48000, status:'empty', securement:'—' },
+      { id:'FB-004', type:'48ft Flatbed', loaded:[], totalWeight:0, maxWeight:48000, status:'empty', securement:'—' },
+      { id:'FB-005', type:'53ft Step-Deck', loaded:[], totalWeight:0, maxWeight:48000, status:'empty', securement:'—' },
+      { id:'FB-006', type:'48ft Flatbed', loaded:[], totalWeight:0, maxWeight:48000, status:'empty', securement:'—' }
+    ]
+  };
+
+  function renderPeterbiltSeq() {
+    var h = '';
+    var seqs = petSeqState.sequences;
+    var trailers = petSeqState.trailers;
+
+    h += '<div class="panel"><div class="panel-header"><span class="panel-icon">🚛</span> Peterbilt Tractor Sequencing — Terrabon-Style Large Component Delivery</div><div class="panel-body">';
+
+    h += '<div style="font-size:10px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">';
+    h += '<strong>Build Sequence:</strong> Frame Rail → Front Axle → Cab Assembly → Sleeper Berth → Hood Assembly → Front Bumper<br>';
+    h += '<strong>Terrabon Workflow:</strong> Large tractor components sequenced for Peterbilt (PACCAR) — Denton TX + Sainte-Thérèse QC. Components are oversized, shipped on flatbed and step-deck trailers. Special securement required: chains, binders, straps, edge protectors. Models: 579, 567, 389, 367.';
+    h += '</div>';
+
+    // Stats
+    var totalItems = 0, scannedItems = 0;
+    seqs.forEach(function(s) { s.items.forEach(function(i) { totalItems++; if (i.scanned) scannedItems++; }); });
+    h += '<div class="dashboard-grid" style="grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px">';
+    h += '<div class="stat-card"><div class="stat-label">Sequences</div><div class="stat-value">' + seqs.length + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Components</div><div class="stat-value" style="color:var(--blue)">' + totalItems + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Scanned</div><div class="stat-value" style="color:var(--emerald)">' + scannedItems + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" style="color:var(--orange)">' + (totalItems - scannedItems) + '</div></div>';
+    h += '<div class="stat-card"><div class="stat-label">Trailers</div><div class="stat-value">' + trailers.length + '</div></div>';
+    h += '</div>';
+
+    // Component sequence builder
+    h += '<div class="ai-section-header">🔧 Build Sequence — Frame → Axle → Cab → Sleeper → Hood → Bumper</div>';
+    var buildOrder = ['Frame Rail','Front Axle','Cab Assembly','Sleeper Berth','Hood Assembly','Front Bumper'];
+    var buildIcons = ['🪛','⚙️','🚛','🛏️','🧰','🛡️'];
+    h += '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">';
+    buildOrder.forEach(function(comp, idx) {
+      var found = seqs[0].items.find(function(i) { return i.component === comp; });
+      var icon = buildIcons[idx] || '🔧';
+      var stColor = found && found.scanned ? 'var(--emerald)' : 'var(--text-muted)';
+      var bgColor = found && found.scanned ? 'rgba(46,204,113,0.1)' : 'rgba(255,255,255,0.02)';
+      h += '<div style="background:' + bgColor + ';border:1px solid ' + stColor + ';border-radius:4px;padding:6px 10px;text-align:center;min-width:100px">';
+      h += '<div style="font-size:18px">' + icon + '</div>';
+      h += '<div style="font-size:9px;font-weight:700;color:' + stColor + '">' + (idx+1) + '. ' + comp + '</div>';
+      h += '<div style="font-size:8px;color:var(--text-muted)">' + (found && found.scanned ? '✅ Scanned' : '⏳ Pending') + '</div>';
+      h += '</div>';
+      if (idx < buildOrder.length - 1) h += '<div style="display:flex;align-items:center;color:var(--text-muted)">→</div>';
+    });
+    h += '</div>';
+
+    // Sequence details
+    seqs.forEach(function(seq) {
+      var seqColor = seq.status === 'complete' ? 'var(--emerald)' : seq.status === 'in_progress' ? 'var(--blue)' : 'var(--text-muted)';
+      var seqScanned = seq.items.filter(function(i) { return i.scanned; }).length;
+
+      h += '<div class="card" style="margin-bottom:10px">';
+      h += '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;align-items:center">';
+      h += '<div><strong style="color:var(--purple-light)">' + seq.id + '</strong> — VIN: ' + seq.vin + ' | Model: ' + seq.model + ' | Plant: ' + seq.plant + ' | ' + seq.line + ' | Dest: ' + seq.destination + '</div>';
+      h += '<div style="color:' + seqColor + ';font-weight:600">' + seq.status.replace(/_/g,' ') + ' (' + seqScanned + '/' + seq.items.length + ' scanned)</div>';
+      h += '</div>';
+
+      h += '<table class="data-table" style="margin-top:6px"><thead><tr><th>Seq</th><th>Component</th><th>Part #</th><th>Weight</th><th>Dims (in)</th><th>Trailer</th><th>Securement</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+      seq.items.forEach(function(item) {
+        var iColor = item.scanned ? 'var(--emerald)' : 'var(--text-muted)';
+        h += '<tr>';
+        h += '<td style="font-weight:700">' + item.seq + '</td>';
+        h += '<td><strong>' + item.component + '</strong></td>';
+        h += '<td>' + item.partNum + '</td>';
+        h += '<td>' + item.weight.toLocaleString() + ' lbs</td>';
+        h += '<td class="font-mono" style="font-size:10px">' + item.dims + '</td>';
+        h += '<td>' + item.trailer + '</td>';
+        h += '<td style="font-size:10px">' + item.securement + '</td>';
+        h += '<td style="color:' + iColor + '">' + (item.scanned ? '✅ Scanned' : '⏳ Pending') + '</td>';
+        h += '<td>';
+        if (!item.scanned) {
+          h += '<button class="btn btn-sm btn-emerald" onclick="AutoSeqUI.scanPB(\'' + seq.id + '\',' + (item.seq-1) + ')">📦 Scan</button>';
+        }
+        h += '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table>';
+      h += '</div>';
+    });
+
+    // Trailer loading
+    h += '<div class="ai-section-header">🚚 Trailer Loading — Flatbed & Step-Deck</div>';
+    h += '<table class="data-table"><thead><tr><th>Trailer</th><th>Type</th><th>Loaded</th><th>Weight</th><th>Max Weight</th><th>Util %</th><th>Securement</th><th>Status</th></tr></thead><tbody>';
+    trailers.forEach(function(t) {
+      var util = t.maxWeight > 0 ? Math.round(t.totalWeight / t.maxWeight * 1000) / 10 : 0;
+      var stColor = t.status === 'loaded' ? 'var(--emerald)' : t.status === 'partial' ? 'var(--orange)' : 'var(--text-muted)';
+      h += '<tr><td><strong>' + t.id + '</strong></td><td style="font-size:10px">' + t.type + '</td><td>' + t.loaded.length + ' items</td><td>' + t.totalWeight.toLocaleString() + ' lbs</td><td>' + t.maxWeight.toLocaleString() + ' lbs</td><td>' + util + '%</td><td style="font-size:10px">' + t.securement + '</td><td style="color:' + stColor + '">' + t.status + '</td></tr>';
+    });
+    h += '</tbody></table>';
+
+    // Securement reference
+    h += '<div class="ai-section-header">⛓️ Securement Requirements (DOT 49 CFR 393.100-136)</div>';
+    h += '<table class="data-table"><thead><tr><th>Component</th><th>Weight Range</th><th>Securement</th><th>Min Chains</th><th>Edge Protectors</th><th>Notes</th></tr></thead><tbody>';
+    h += '<tr><td><strong>Frame Rail</strong></td><td>2,000-3,500 lbs</td><td>Chains + Binders</td><td>4</td><td>Yes</td><td style="font-size:10px">Direct tie-down, crossing pattern</td></tr>';
+    h += '<tr><td><strong>Front Axle</strong></td><td>1,000-1,500 lbs</td><td>Chains + Binders</td><td>2</td><td>Yes</td><td style="font-size:10px">Direct to axle housing</td></tr>';
+    h += '<tr><td><strong>Cab Assembly</strong></td><td>3,000-4,000 lbs</td><td>Chains + Edge Protectors</td><td>6</td><td>Yes</td><td style="font-size:10px">Largest component — center of trailer</td></tr>';
+    h += '<tr><td><strong>Sleeper Berth</strong></td><td>1,500-2,500 lbs</td><td>Straps + Edge Protectors</td><td>—</td><td>Yes</td><td style="font-size:10px">4 ratchet straps, 2,000 lb WLL each</td></tr>';
+    h += '<tr><td><strong>Hood Assembly</strong></td><td>400-600 lbs</td><td>Ratchet Straps</td><td>—</td><td>Optional</td><td style="font-size:10px">Lightweight — 4 straps sufficient</td></tr>';
+    h += '<tr><td><strong>Front Bumper</strong></td><td>300-450 lbs</td><td>Chains + Binders</td><td>2</td><td>Yes</td><td style="font-size:10px">Steel bumper — direct chain</td></tr>';
+    h += '</tbody></table>';
+
+    // Peterbilt models
+    h += '<div class="ai-section-header">🚛 Peterbilt Models Supported</div>';
+    h += '<table class="data-table"><thead><tr><th>Model</th><th>Type</th><th>Plant</th><th>Notes</th></tr></thead><tbody>';
+    h += '<tr><td><strong>579</strong></td><td>Class 8 Day Cab / Sleeper</td><td>Denton TX</td><td style="font-size:10px">Flagship on-highway truck</td></tr>';
+    h += '<tr><td><strong>567</strong></td><td>Class 8 vocational</td><td>Denton TX</td><td style="font-size:10px">Heavy haul, construction</td></tr>';
+    h += '<tr><td><strong>389</strong></td><td>Class 8 legacy</td><td>Denton TX</td><td style="font-size:10px">Classic long-hood (discontinued 2024)</td></tr>';
+    h += '<tr><td><strong>367</strong></td><td>Class 8 vocational</td><td>Denton TX</td><td style="font-size:10px">Set-forward axle, vocational</td></tr>';
+    h += '</tbody></table>';
+
+    // Failover note
+    h += '<div style="margin-top:10px;padding:8px;background:rgba(243,156,18,0.05);border-radius:var(--radius);border-left:3px solid var(--orange);font-size:10px;line-height:1.5">';
+    h += '<strong>⚠️ FAILSAFE:</strong> If scanner or sequencing system goes down, operators print manual paper pick lists (available in Conveyor Pick List view) and continue loading trailers by hand. Production never stops. All components verified by visual inspection + part number check against printed sequence.';
+    h += '</div>';
+
+    h += '</div></div>';
+    return h;
+  }
+
+  function scanPB(seqId, itemIdx) {
+    var seq = petSeqState.sequences.find(function(s) { return s.id === seqId; });
+    if (!seq) return;
+    var item = seq.items[itemIdx];
+    if (!item) return;
+    item.scanned = true;
+    // Check if all scanned
+    var allDone = seq.items.every(function(i) { return i.scanned; });
+    if (allDone) seq.status = 'complete';
+    else seq.status = 'in_progress';
+    AutoSeq.alert('success', 'Component Scanned', item.component + ' (' + item.partNum + ') verified for ' + seq.vin);
+    switchView('petseq');
+  }
+
+  // ══════════════════════════════════════════════════════════
   //  TRAILER MANAGEMENT VIEW
   // ══════════════════════════════════════════════════════════
 
@@ -6642,5 +6807,6 @@ const AutoSeqUI = (function () {
     downloadManualPickList,
     activateFailover,
     deactivateFailover,
+    scanPB,
   };
 })();
