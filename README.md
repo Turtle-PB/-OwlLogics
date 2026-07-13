@@ -3,10 +3,16 @@
 ## Automotive Parts Sequencing & Kitting System
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Patent Rights Reserved](https://img.shields.io/badge/Patent-Rights_Reserved-red.svg)](PATENTS)
 ![PWA](https://img.shields.io/badge/PWA-Installable-brightgreen)
 ![Offline](https://img.shields.io/badge/Works-Offline-success)
+![Views](https://img.shields.io/badge/Views-35-blue)
+![JS Modules](https://img.shields.io/badge/JS%20Modules-16-blueviolet)
+![Protocols](https://img.shields.io/badge/Protocols-8-9cf)
 
 **Self-contained browser app — no server, no install, no internet required. Double-click `index.html` and go.**
+
+🔗 **Live Demo:** [https://turtle-pb.github.io/OwlLogic](https://turtle-pb.github.io/OwlLogic)
 
 ---
 
@@ -37,18 +43,19 @@ If you or someone you know is struggling:
 
 ---
 
-## 📋 Features (27 Views)
+## 📋 Features (35 Views)
 
 | Category | Views |
 |----------|-------|
 | **Core** | Dashboard, Shop Floor, Sequence Manager, Rack Loading (2D/3D), Kitting |
 | **Master Data** | Op Codes / CGM, Parts Catalog, Commodity Master, Item Master |
 | **Data Sources** | MSQM Stream, Protocols (8 types incl. Azure IoT Hub), Label Printing |
-| **Logistics** | Routes & Delivery, CKD & Shipping, Package Master, Pallet Staging, Cost Analysis |
+| **Logistics** | Routes & Delivery, CKD & Shipping, Package Master, Pallet Staging, Cost Analysis, Carrier Shipping |
 | **Visual** | Shipyards (3D), Trucks & Rail, Forklift Fleet (2D/3D/SAP), 3D Rack Visualizer |
-| **Integrations** | SAP PM (BAPI), SAP IDoc (5 types), TN3270 Terminal, Azure IoT Hub |
-| **Intelligence** | AI Optimizer (local, no cloud), Live Metrics Dashboard |
+| **Integrations** | SAP PM (BAPI), SAP IDoc (5 types), TN3270 Terminal, Azure IoT Hub, Print Server |
+| **Intelligence** | AI Optimizer (local, no cloud), Live Metrics Dashboard, Local AI (Ollama) |
 | **Compliance** | Standards & Compliance (OEM protocols, AIAG labels, lean metrics, poka-yoke, CKD, ISPM-15) |
+| **Yard & Fleet** | Yard Management (YMS), Fleet & GPS, Trailer Mgmt, Peterbilt Sequencing, Conveyor Pick List, Blue Yonder WMS |
 | **Info** | NextGen vs OwlLogics Comparison, Documentation (8 tabs) |
 
 ### Key Capabilities
@@ -62,6 +69,7 @@ If you or someone you know is struggling:
 - **19 OEM sequencing protocols**: CONVIS, ILVS, SPAB, GBLN, GePICS, GALC, MPAB, SAP-HD, Ford SQL Server, PACCAR EDI 866, Windsor CONVIS/PFCS, Tesla JSON, Nissan XML, VW/Audi WSDL, Mercedes CSV, Hyundai TCP, Kia TCP, JLR 8DM
 - **3D CSS visuals**: Racks, forklifts, shipyards, pallets — no external libraries
 - **Local AI optimizer**: Sequence, route, forklift, and rack optimization — 100% local
+- **Local AI module**: Ollama integration (gemma4) — zero API cost, 100% local inference
 - **Lean manufacturing metrics**: OEE, Takt Time, FPY, Heijunka smoothness, WIP
 - **Poka-yoke engine**: 6 error checks (wrong part, slot, sequence, rack, color, missing)
 - **Milk run calculator**: Multi-stop logistics with trolley capacity and utilization
@@ -71,23 +79,27 @@ If you or someone you know is struggling:
 - **Multi-OEM support**: FCA CONVIS, Harley-Davidson SAP, GM ILVS, Ford SPAB, Toyota GBLN, BMW GePICS, Honda GALC, Nissan MPAB
 - **PWA**: Installable on Android, iOS, Windows, macOS — works offline
 - **TN3270 terminal**: Built-in emulator with 16 public mainframe presets
+- **Carrier shipping**: FedEx, UPS, USPS, DHL + Apple/Dell OEM
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1: Direct
+### Option 1: Live Demo
+Visit [https://turtle-pb.github.io/OwlLogic](https://turtle-pb.github.io/OwlLogic) — no download needed.
+
+### Option 2: Direct
 1. Download/clone this repo
 2. Open `index.html` in any modern browser
 3. Done — MSQM starts streaming automatically
 
-### Option 2: Local Server (for PWA/mobile)
+### Option 3: Local Server (for PWA/mobile)
 ```bash
 python -m http.server 8765
 # Then open http://localhost:8765 on any device
 ```
 
-### Option 3: Install as PWA
+### Option 4: Install as PWA
 - **Android**: Chrome → 3-dot menu → Install app
 - **iOS**: Safari → Share → Add to Home Screen
 - **Desktop**: Chrome/Edge → install icon in address bar
@@ -100,15 +112,19 @@ python -m http.server 8765
 OwlLogics/
   index.html           — Main app (boot loader, PWA meta)
   manifest.json        — PWA manifest
-  sw.js                — Service worker (offline cache)
+  sw.js                — Service worker (offline cache, 16 JS modules)
   LICENSE              — MIT License
+  PATENTS              — Patent rights reserved notice
+  README.md            — Full documentation
   css/style.css        — Dark IDE theme (responsive)
   icons/               — PWA icons (192, 512, maskable, apple-touch)
+  data/                — Sample parts & opcode JSON
+  docs/                — GitHub Pages documentation site
   js/
     core.js            — State, MSQM, scanner, persistence
     protocols.js       — 8 protocol adapters (incl. Azure IoT Hub)
     labels.js          — 7 barcode formats + ZPL
-    ui.js              — All 26 view renderers
+    ui.js              — All 35 view renderers
     flvisual.js        — 2D/3D forklift visuals
     sap-forklift.js    — SAP PM BAPI simulation
     sap-idoc.js        — 5 SAP IDoc generators
@@ -116,9 +132,17 @@ OwlLogics/
     metrics.js         — Real-time metrics dashboard
     logistics.js       — Packages, pallets, CKD, shipping, shipyards
     standards.js       — OEM protocols, AIAG labels, lean metrics, poka-yoke, CKD compliance
+    fleet-logistics.js — Fleet GPS, trailers, CKD retrieval
+    trailer-print.js   — Trailer & print server
+    yms.js             — Yard management system
+    carrier-ship.js    — Carrier shipping (FedEx, UPS, USPS, DHL)
+    local-ai.js        — Local Ollama AI module (zero API cost)
   owllogics.ico        — Desktop icon
+  owl-icon.svg         — SVG owl icon
   open.bat             — Quick launcher (Windows)
   launch_silent.vbs    — Silent launcher (no console)
+  brainstem.py         — MCP-style budget token router
+  visual_compressor.py — Text-to-image for vision model savings
 ```
 
 ---
@@ -148,7 +172,7 @@ Full documentation is built into the app — click **📖 Documentation** in the
 3. ⚙️ Power User Guide
 4. 🔧 Admin Configuration
 5. ❓ Troubleshooting
-6. 📡 API Reference (all 10 modules)
+6. 📡 API Reference (all 16 modules)
 7. 📱 Mobile Setup (Android APK + iOS PWA)
 8. 🎮 Xbox & Steam Integration
 

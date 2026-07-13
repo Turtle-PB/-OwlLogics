@@ -249,7 +249,8 @@
               typeof FleetLogistics !== 'undefined' &&
               typeof TrailerPrint !== 'undefined' &&
               typeof YMS !== 'undefined' &&
-              typeof CarrierShip !== 'undefined') {
+              typeof CarrierShip !== 'undefined' &&
+              typeof LocalAI !== 'undefined') {
             resolve();
           } else {
             setTimeout(check, 20);
@@ -267,7 +268,7 @@
       // Step 0: Verify scripts loaded
       await BootLoader.step('📚', 'Verifying script dependencies', async function() {
         await waitForScripts();
-        return '17 JS modules loaded';
+        return '16 JS modules loaded';
       });
 
       // Step 1: Load core data
@@ -307,7 +308,7 @@
       // Step 5: Build UI framework
       await BootLoader.step('🎨', 'Building UI framework', async function() {
         AutoSeqUI.init();
-        return '12 views, sidebar, status bar initialized';
+        return '35 views, sidebar, status bar initialized';
       });
 
       // Step 6: Load label engine
