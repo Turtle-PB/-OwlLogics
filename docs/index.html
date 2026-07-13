@@ -88,8 +88,7 @@
       font-size: 14px;
     }
     .donate .paypal { background: #0070ba; }
-    .donate .patreon { background: #f96854; }
-    .donate .chime { background: #27AE60; }
+    .donate .launch { background: var(--purple); }
     .card {
       background: var(--bg-panel);
       border: 1px solid var(--border);
@@ -151,28 +150,30 @@
     <img src="https://img.shields.io/badge/Patent-Rights_Reserved-red.svg" alt="Patent Rights Reserved">
     <img src="https://img.shields.io/badge/PWA-Installable-brightgreen" alt="PWA">
     <img src="https://img.shields.io/badge/Works-Offline-success" alt="Offline">
-    <img src="https://img.shields.io/badge/Views-26-blue" alt="26 Views">
+    <img src="https://img.shields.io/badge/Views-35-blue" alt="35 Views">
     <img src="https://img.shields.io/badge/Protocols-8-blueviolet" alt="8 Protocols">
   </div>
   <div class="donate">
+    <a class="launch" href="https://turtle-pb.github.io/OwlLogic/" target="_blank">🚀 Launch App</a>
     <a class="paypal" href="https://www.paypal.com/paypalme/adcockp" target="_blank">💖 PayPal</a>
-    <a class="patreon" href="https://www.patreon.com/adcockp" target="_blank">🎨 Patreon</a>
   </div>
 </div>
 
 <h2>📥 Quick Start</h2>
 <div class="card">
-  <h4>Option 1: Download & Run (Easiest)</h4>
+  <h4>Option 1: Live Demo (Easiest)</h4>
+  <p>Visit <a href="https://turtle-pb.github.io/OwlLogic/" target="_blank">https://turtle-pb.github.io/OwlLogic/</a> — no download needed.</p>
+  <h4>Option 2: Download & Run</h4>
   <ol>
-    <li>Clone: <code>git clone https://github.com/Turtle-PB/-OwlLogics.git</code></li>
+    <li>Clone: <code>git clone https://github.com/Turtle-PB/OwlLogic.git</code></li>
     <li>Open <code>index.html</code> in any modern browser</li>
     <li>Done — the app boots and MSQM starts streaming automatically</li>
   </ol>
-  <h4>Option 2: Local Server (for PWA/mobile)</h4>
-  <pre><code>cd OwlLogics
+  <h4>Option 3: Local Server (for PWA/mobile)</h4>
+  <pre><code>cd OwlLogic
 python -m http.server 8765
 # Open http://localhost:8765 on any device</code></pre>
-  <h4>Option 3: Install as PWA on Phone</h4>
+  <h4>Option 4: Install as PWA on Phone</h4>
   <ul>
     <li><strong>Android:</strong> Chrome → 3-dot menu → Install app</li>
     <li><strong>iOS:</strong> Safari → Share → Add to Home Screen</li>
@@ -180,7 +181,7 @@ python -m http.server 8765
   </ul>
 </div>
 
-<h2>📋 Features (26 Views)</h2>
+<h2>📋 Features (35 Views)</h2>
 <div class="feature-grid">
   <div class="feature-card">
     <h4>📊 Core Operations</h4>
@@ -239,6 +240,7 @@ python -m http.server 8765
       <li>3D Shipyards (cranes, vessels, container stacks)</li>
       <li>Trucks, Rail, Pipeline tracking</li>
       <li>Cost Analysis (total landed cost)</li>
+      <li>Carrier Shipping (FedEx, UPS, USPS, DHL)</li>
     </ul>
   </div>
   <div class="feature-card">
@@ -249,6 +251,7 @@ python -m http.server 8765
       <li>Route load balancing</li>
       <li>Forklift capacity matching</li>
       <li>Rack utilization analysis</li>
+      <li>Local AI module (Ollama gemma4, zero cost)</li>
     </ul>
   </div>
   <div class="feature-card">
@@ -272,6 +275,17 @@ python -m http.server 8765
     </ul>
   </div>
   <div class="feature-card">
+    <h4>🏭 Yard & Fleet</h4>
+    <ul>
+      <li>Yard Management System (YMS)</li>
+      <li>Fleet & GPS tracking</li>
+      <li>Trailer Management</li>
+      <li>Peterbilt Tractor Sequencing</li>
+      <li>Conveyor Pick List</li>
+      <li>Blue Yonder WMS</li>
+    </ul>
+  </div>
+  <div class="feature-card">
     <h4>📖 Documentation</h4>
     <ul>
       <li>Quick Start guide</li>
@@ -279,7 +293,7 @@ python -m http.server 8765
       <li>Power user guide</li>
       <li>Admin config</li>
       <li>Troubleshooting</li>
-      <li>API reference (10 modules)</li>
+      <li>API reference (16 modules)</li>
       <li>Mobile setup (Android/iOS)</li>
       <li>Xbox & Steam publishing</li>
     </ul>
@@ -300,26 +314,33 @@ python -m http.server 8765
 </div>
 
 <h2>📁 Project Structure</h2>
-<pre><code>OwlLogics/
+<pre><code>OwlLogic/
   index.html           — Main app (boot loader, PWA meta)
   manifest.json        — PWA manifest
-  sw.js                — Service worker (offline cache)
+  sw.js                — Service worker (offline cache, 16 JS modules)
   LICENSE              — MIT License (copyright only)
   PATENTS              — Patent rights reserved notice
   README.md            — Full documentation
   css/style.css        — Dark IDE theme (responsive)
   icons/               — 6 PWA icons (192, 512, maskable, apple-touch)
+  data/                — Sample parts & opcode JSON
   js/
     core.js            — State, MSQM, scanner, persistence
     protocols.js       — 8 protocol adapters (incl. Azure IoT Hub)
     labels.js          — 7 barcode formats + ZPL
-    ui.js              — All 26 view renderers
+    ui.js              — All 35 view renderers
     flvisual.js        — 2D/3D forklift visuals
     sap-forklift.js    — SAP PM BAPI simulation
     sap-idoc.js        — 5 SAP IDoc generators
     owl-ai.js          — Local AI optimization engine
     metrics.js         — Real-time metrics dashboard
-    logistics.js       — Packages, pallets, CKD, shipping, shipyards</code></pre>
+    logistics.js       — Packages, pallets, CKD, shipping, shipyards
+    standards.js       — OEM protocols, AIAG labels, lean metrics
+    fleet-logistics.js — Fleet GPS, trailers, CKD retrieval
+    trailer-print.js   — Trailer & print server
+    yms.js             — Yard management system
+    carrier-ship.js    — Carrier shipping (FedEx, UPS, USPS, DHL)
+    local-ai.js        — Local Ollama AI module (zero API cost)</code></pre>
 
 <h2>📱 Platform Support</h2>
 <div class="card">
@@ -339,7 +360,7 @@ python -m http.server 8765
   <h3>⚠️ Patent Rights Reserved</h3>
   <p>The MIT License grants <strong>copyright license only</strong> — NOT patent license. All patent rights covering the methodologies, systems, and inventions in this software are <strong>expressly reserved</strong> by the copyright holders.</p>
   <p>12 patent-pending methodologies include: 3D rack visualization with poka-yoke, multi-protocol MSQM architecture, SAP PM BAPI simulation, local AI optimization, IDoc generation pipeline, Azure IoT Hub integration, CKD compliance system, TN3270 preset system, shipyard/rail/pipeline visualization, delivery workflow, NextGen comparison methodology, and PWA boot loader.</p>
-  <p>See <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/PATENTS">PATENTS file</a> for full notice. Per 35 U.S.C. § 287(a).</p>
+  <p>See <a href="https://github.com/Turtle-PB/OwlLogic/blob/main/PATENTS">PATENTS file</a> for full notice. Per 35 U.S.C. § 287(a).</p>
 </div>
 
 <!-- ============================================================ -->
@@ -357,7 +378,7 @@ python -m http.server 8765
 
   <h3>🙏 Thank You</h3>
   <p>To everyone who has supported me — whether through a kind word, a donation, technical feedback, or simply believing in what I'm building — <strong>thank you from the bottom of my heart</strong>. You kept me going when things were dark.</p>
-  
+
   <ul>
     <li><strong>To the open source community</strong> — for showing that knowledge should be free and shared</li>
     <li><strong>To the automotive logistics professionals</strong> — for teaching me what real sequencing looks like on the shop floor</li>
@@ -371,22 +392,22 @@ python -m http.server 8765
   <h3>💖 Support the Project</h3>
   <p>If OwlLogics helps you, your team, or just made you smile — consider supporting development:</p>
   <div class="donate">
+    <a class="launch" href="https://turtle-pb.github.io/OwlLogic/" target="_blank">🚀 Launch App</a>
     <a class="paypal" href="https://www.paypal.com/paypalme/adcockp" target="_blank">💖 PayPal</a>
-    <a class="patreon" href="https://www.patreon.com/adcockp" target="_blank">🎨 Patreon</a>
   </div>
   <p style="text-align:center;font-size:13px;color:var(--text-muted);">Every donation helps keep OwlLogics free and open source.</p>
 
   <h3>🚀 What's Next</h3>
   <p>OwlLogics is just the beginning. The vision is a complete ecosystem — automotive sequencing, logistics visualization, AI optimization, and eventually, a platform that empowers operators and engineers to do their best work without vendor lock-in or corporate gatekeeping.</p>
-  
+
   <p>This is built by someone who has been at the bottom and climbed back up — one line of code at a time.</p>
 
   <p style="text-align:center;font-size:18px;margin-top:30px;"><strong>Stay strong. Keep building. Keep going. 🦉</strong></p>
 </div>
 
 <div class="footer">
-  <p>🦉 OwlLogics NexGen Owl Mode — <a href="https://github.com/Turtle-PB/-OwlLogics">GitHub Repository</a></p>
-  <p>MIT License (copyright only) — Patent Rights Reserved — See <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/LICENSE">LICENSE</a> and <a href="https://github.com/Turtle-PB/-OwlLogics/blob/main/PATENTS">PATENTS</a></p>
+  <p>🦉 OwlLogics NexGen Owl Mode — <a href="https://github.com/Turtle-PB/OwlLogic">GitHub Repository</a></p>
+  <p>MIT License (copyright only) — Patent Rights Reserved — See <a href="https://github.com/Turtle-PB/OwlLogic/blob/main/LICENSE">LICENSE</a> and <a href="https://github.com/Turtle-PB/OwlLogic/blob/main/PATENTS">PATENTS</a></p>
   <p>(c) 2024 Paul Adcock &lt;paul.dev.co@outlook.com&gt; — All Rights Reserved</p>
   <p>Built with determination, code, and 🦉</p>
   <p style="margin-top:15px;font-size:12px;color:var(--text-muted);">

@@ -1,7 +1,7 @@
 // OwlLogics Service Worker — PWA Offline Support
 // (c) 2024 Paul Adcock — Patent Pending
 
-var CACHE_NAME = 'owllogics-v1.0';
+var CACHE_NAME = 'owllogics-v1.1';
 var ASSETS = [
   './',
   './index.html',
@@ -16,9 +16,16 @@ var ASSETS = [
   './js/owl-ai.js',
   './js/metrics.js',
   './js/logistics.js',
+  './js/standards.js',
+  './js/fleet-logistics.js',
+  './js/trailer-print.js',
+  './js/yms.js',
+  './js/carrier-ship.js',
+  './js/local-ai.js',
   './manifest.json',
   './sw.js',
   './owllogics.ico',
+  './owl-icon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-192-maskable.png',
